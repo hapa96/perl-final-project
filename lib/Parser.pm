@@ -24,7 +24,9 @@ sub parse_master_file($path_to_file){
 
         <rule: Delimeter>          ^ (_)+? $
 
-        <rule: Question>           <Task> <Correct_Answer> <[Other_Answer]>{4} <.Empty_Line>+?
+        <rule: Question>           <Task> <Answers> <.Empty_Line>+?
+
+        <rule: Answers>            <Correct_Answer> <[Other_Answer]>{4}
 
         <rule: Task>               ^ [1-9] [0-9]? [0-9]? \. .+? (\.\.\.|:|\?) $
 
