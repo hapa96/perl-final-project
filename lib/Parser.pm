@@ -16,23 +16,25 @@ sub parse_master_file($path_to_file){
 
         <nocontext:> 
 
-        <rule: Exam>            <Intro>  <[Exam_Components]>*
+        <rule: Exam>               <Intro> <[Questions]>*
 
-        <rule: Exam_Components> <.Empty_Line>? <Questions> <.Empty_Line>? <Delimeter>
+        <rule: Questions>          <.Empty_Line>? <Question> <.Empty_Line>*? <Delimeter>
 
-        <rule: Intro>           ^ .+? (Scoring:) .+? (Warning:).+? <.Empty_Line>? <Delimeter>
+        <rule: Intro>              <Intro_Text>  <Delimeter> <.Empty_Line>*
 
-        <rule: Delimeter>       ^ (_){5,100} $
+        <rule: Delimeter>          ^ (_)+? $
 
-        <rule: Questions>       <Question> <Correct_Answer> <[Other_Answer]>{4} <.Empty_Line> 
+        <rule: Question>           <Task> <Correct_Answer> <[Other_Answer]>{4} <.Empty_Line>+?
 
-        <rule: Question>        ^ [1-9] [0-9]? [0-9]? \. .+? (\.\.\.|:|\?) $
+        <rule: Task>               ^ [1-9] [0-9]? [0-9]? \. .+? (\.\.\.|:|\?) $
 
-        <rule: Correct_Answer>  ^ \s+? \[ \s* X \] \N+? \n
+        <rule: Correct_Answer>     ^ \s+? \[ \s* X \] \N+? \n
 
-        <rule: Other_Answer>    ^ \s+? \[ \s*  \] \N+? \n
+        <rule: Other_Answer>       ^ \s+? \[ \s*  \] \N+? \n
 
-        <token: Empty_Line>     \s* \n
+        <rule: Intro_Text>         ^ .+? (Scoring:) .+? (Warning:) .+?
+
+        <token: Empty_Line>        \s* \n
 
         
     }xms;
