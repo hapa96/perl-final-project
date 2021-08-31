@@ -8,7 +8,7 @@ use Data::Show;
 use Algorithm::Numerical::Shuffle qw (shuffle);
 
 
-our @EXPORT = qw(create_new_test);
+our @EXPORT = qw(create_blank_exam);
 
 #Helper Function for removing Crosses and shuffle the questions 
 sub remove_cross_and_shuffle(@all_questions){
@@ -24,7 +24,7 @@ sub remove_cross_and_shuffle(@all_questions){
     return @all_questions
 }
 
-sub create_new_test(%parsed_exam){
+sub create_blank_exam(%parsed_exam){
     # edit copy of original exam
     my %master_exam = %parsed_exam;
 
