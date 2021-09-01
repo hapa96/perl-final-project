@@ -14,7 +14,7 @@ our @EXPORT = qw(print_exam_to_file);
 
 sub print_exam_to_file($master_file_name,%blank_exam ){
     print YELLOW, "Creating blank Exam based on $master_file_name ...\n", RESET;
-    
+
     #Create name for new file
     my $timestamp = strftime '%Y%m%d-%H%M%S', localtime;
     my $exam_file_name = "$timestamp-$master_file_name"; 
@@ -37,9 +37,12 @@ sub print_exam_to_file($master_file_name,%blank_exam ){
         say {$output} "\n $delimeter \n";
     }
 
-    my $closed = close $output;
+    #Close Filehandler
+    my $was_closed = close $output;
+    if( ! $was_closed){
+        warn "\n Unable to close filehandler \n \t $!";
+    }
     print GREEN, "Sucessfully created new blank Exam '$exam_file_name' \n", RESET;
-
 }
 
 
