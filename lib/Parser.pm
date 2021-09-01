@@ -7,10 +7,11 @@ use Regexp::Grammars;
 use Exporter ('import');
 
 
-our @EXPORT = ('parse_master_file');
+our @EXPORT = ('parse_master_file', 'parse_exam_file');
 
 sub parse_master_file($path_to_file){
     my $parser = qr{
+        #<debug:on>
 
         <Exam>
 
@@ -18,29 +19,69 @@ sub parse_master_file($path_to_file){
 
         <rule: Exam>               <Intro> <[Questions]>*
 
-        <rule: Questions>          <.Empty_Line>? <Question> <.Empty_Line>*? <Delimeter>
+        <rule: Questions>          <.Empty_Line>*? <Question> <.Empty_Line>*? <Delimeter>
 
         <rule: Intro>              <Intro_Text>  <Delimeter> <.Empty_Line>*
-
-        <rule: Delimeter>          ^ (_)+? $
 
         <rule: Question>           <Task> <Answers> <.Empty_Line>+?
 
         <rule: Answers>            <Correct_Answer> <[Other_Answer]>{4}
 
-        <rule: Task>               ^ [1-9] [0-9]? [0-9]? \. .+? (\.\.\.|:|\?) $
 
-        <rule: Correct_Answer>     ^ \s+? \[ \s* X \] \N+? \n
+        <token: Delimeter>          [_]*? \n
 
-        <rule: Other_Answer>       ^ \s+? \[ \s*  \] \N+? \n
+        <token: Task>               \s*? [0-9]* [.] .+? (\.\.\.|:|\?) \n
 
-        <rule: Intro_Text>         ^ .+? (Scoring:) .+? (Warning:) .+?
+        <token: Correct_Answer>     ^ \s*? \[ \s* X \] \N+? \n
+
+        <token: Other_Answer>       ^ \s*? \[ \s*  \] \N+? \n
+
+        <token: Intro_Text>         ^ .+? (Scoring:) .+? (Warning:) [^_]*
 
         <token: Empty_Line>        \s* \n
 
         
     }xms;
 
+    parse_content($parser, $path_to_file )
+
+}
+
+sub parse_exam_file($path_to_file){
+    my $parser = qr{
+        
+        #<debug:on>
+        
+        <Exam>
+       
+        <nocontext:> 
+
+        <rule: Exam>               <Intro> <[Questions]>*
+
+        <rule: Questions>          <.Empty_Line>*? <Question> <.Empty_Line>*? <.Delimeter> 
+
+        <rule: Intro>              <Intro_Text> <.Delimeter> <.Empty_Line>*?
+
+        <rule: Question>           <Task> <.Empty_Line>*? <[Answers]>{5} <.Empty_Line>+?
+        
+        <token: Delimeter>          [_]*? \n
+
+        <token: Answers>            ^ \s* \[ .*? \] .*? \n
+
+        <token: Task>               \s* [0-9]* [.] .+? (\.\.\.|:|\?) \n
+
+        <token: Intro_Text>         ^ .+? (Scoring:) .+? (Warning:) [^_]*
+
+        <token: Empty_Line>        \s* \n
+
+        
+    }xms;
+
+    parse_content($parser, $path_to_file )
+
+}
+#Helper Function for Parsing a file
+sub parse_content($parser, $path_to_file ){
     #Check if Filename exist
     my $filename;
     if(-e $path_to_file){
@@ -60,6 +101,7 @@ sub parse_master_file($path_to_file){
     if ($text =~ $parser){
         my %parsed_exam = %/;
     }
+
 }
 
 
