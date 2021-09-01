@@ -20,6 +20,30 @@ For Developing this project, `WSL:Ubuntu-20.4` with `perlbrew` and the newest pe
 ### File parsing
 For parsing the master file, I make use of the module [Regexp::Grammers](https://metacpan.org/pod/Regexp::Grammars) on CPAN. With this Module, the parsing can be done quite easy and robust. The Grammer for the file looks as the following:
 ```
-TODO: Grammer Description
+        <Exam>
+
+        <nocontext:> 
+
+        <rule: Exam>               <Intro> <[Questions]>*
+
+        <rule: Questions>          <.Empty_Line>? <Question> <.Empty_Line>*? <Delimeter>
+
+        <rule: Intro>              <Intro_Text>  <Delimeter> <.Empty_Line>*
+
+        <rule: Delimeter>          ^ (_)+? $
+
+        <rule: Question>           <Task> <Answers> <.Empty_Line>+?
+
+        <rule: Answers>            <Correct_Answer> <[Other_Answer]>{4}
+
+        <rule: Task>               ^ [1-9] [0-9]? [0-9]? \. .+? (\.\.\.|:|\?) $
+
+        <rule: Correct_Answer>     ^ \s+? \[ \s* X \] \N+? \n
+
+        <rule: Other_Answer>       ^ \s+? \[ \s*  \] \N+? \n
+
+        <rule: Intro_Text>         ^ .+? (Scoring:) .+? (Warning:) .+?
+
+        <token: Empty_Line>        \s* \n
 ```
 
