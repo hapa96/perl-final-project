@@ -6,6 +6,8 @@ use experimental 'signatures';
 use Exporter ('import');
 use Data::Show;
 use Algorithm::Numerical::Shuffle qw (shuffle);
+use Storable qw(dclone); # To create a deep copy of an object
+
 
 
 our @EXPORT = qw(create_blank_exam);
@@ -25,8 +27,8 @@ sub remove_cross_and_shuffle(@all_questions){
 }
 
 sub create_blank_exam(%parsed_exam){
-    # edit copy of original exam
-    my %master_exam = %parsed_exam;
+    # create a deep copy of the hash %parsed_exam
+    my %master_exam = %{dclone(\%parsed_exam)};    
 
     #create array of all questions
     my @all_questions;
@@ -44,6 +46,7 @@ sub create_blank_exam(%parsed_exam){
     for my $question (@{$master_exam{'Exam'}{'Questions'}}){
         $question->{"Question"}{"Answers"} = [shift @all_questions];
     }
+    return %master_exam;
 }
 
 1; #Magic true value required at the end of module
