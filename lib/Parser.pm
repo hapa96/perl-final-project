@@ -29,11 +29,11 @@ sub parse_master_file($path_to_file){
 
         <token: Delimeter>          [_]+ \R*
 
-        <token: Task>               \s*? [0-9]* [.] .\N* \R 
+        <token: Task>               \s*? [0-9]* [.] .+? (?: \.\.\.|:|\?) \R
 
-        <token: Correct_Answer>     ^ \s*? \[ \s* X \] \N* \R
+        <token: Correct_Answer>     ^ \s*? \[ \s* X \] \N+? \n
 
-        <token: Other_Answer>       ^ \s*? \[ \s*  \] \N* \R
+        <token: Other_Answer>       ^ \s*? \[ \s*  \] \N+? \n
 
         <token: Intro_Text>         ^ .+? (Scoring:) .+? (Warning:) [^_]*
 
@@ -57,21 +57,21 @@ sub parse_exam_file($path_to_file){
 
         <rule: Exam>               <.Intro> <[Questions]>*
 
-        <rule: Questions>          <.Empty_Line>*? <Question> <.Empty_Line>*? <.Delimeter> 
+        <rule: Questions>          <.Empty_Line>*? <Question> <.Empty_Line>*? <.Delimeter>+
 
         <rule: Intro>              <Intro_Text> <.Empty_Line>*? <.Delimeter> <.Empty_Line>*?
 
-        <rule: Question>           <Task> <.Empty_Line>*? <[Answers]>{5} <.Empty_Line>+?
+        <rule: Question>           <Task> <.Empty_Line>+? <[Answers]>{5} <.Empty_Line>*?
         
-        <token: Delimeter>          [_]+ \R
+        <token: Delimeter>          [_=]+ \R
 
-        <token: Answers>            ^ \s* \[ [^]] \] \N* \R
+        <token: Answers>            ^ \s* \[ [^]]* \] \N* \R 
 
-        <token: Task>               \s* [0-9]* [.]  \N* \R 
+        <token: Task>               \s*? \d+ [.] \N* \R (?: \N* \S \N* \R )*
 
         <token: Intro_Text>         ^ .+? (?: Scoring:) .+? (?: Warning:) [^_]*
 
-        <token: Empty_Line>         \s* \R*
+        <token: Empty_Line>         \s* \R
 
         
     }xms;
