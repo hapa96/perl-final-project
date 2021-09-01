@@ -44,7 +44,7 @@ sub create_blank_exam(%parsed_exam){
     my @shuffeld_questions = remove_cross_and_shuffle(@all_questions);
     
     for my $question (@{$master_exam{'Exam'}{'Questions'}}){
-        $question->{"Question"}{"Answers"} = [shift @all_questions];
+        $question->{"Question"}{"Answers"} = shift @all_questions;
     }
     return %master_exam;
 }

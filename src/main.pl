@@ -5,11 +5,16 @@ use Data::Show;
 use experimental 'signatures';
 use FindBin;                     # locate this script
 use lib "../lib";  # use the parent directory
-use Parser ; # own module to parse a master file
-use Util;
 
-my $master_file_path = $ARGV[0];
+#Custom Modules in lib folder
+use Parser ; 
+use Util;
+use Printer;
+
+my $master_file_name = $ARGV[0];
+
 #Task 1a
-my %master_exam = parse_master_file($master_file_path);
-create_blank_exam(%master_exam);
-show %master_exam;
+my %master_exam = parse_master_file($master_file_name);   
+my %blank_exam = create_blank_exam(%master_exam);          
+#show %blank_exam;
+print_exam_to_file($master_file_name, %blank_exam);
