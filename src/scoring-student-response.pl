@@ -11,6 +11,7 @@ use Parser;
 use Util;
 use Printer;
 #1b
+#TODO: REGEX for file...
 my $master_file_name = shift @ARGV;
 my %master_exam = parse_master_file($master_file_name);
 my $regex_command = shift @ARGV;
@@ -27,37 +28,17 @@ for my $exam (@desired_exams){
 }
 
 #validate all the exams --> Questions and Answers are present according to the master file
-my $index = 0;
+my $exam_index = 0;
 my @results; 
 for my $exam_ref (@exams_hash_array){
     my %exam = %{$exam_ref};
-    validate_exam(master_exam => \%master_exam, student_exam => \%exam, exam_name => $desired_exams[$index]);
-    push (@results, correct_exams(master_exam => \%master_exam, student_exam => \%exam, exam_name => $desired_exams[$index]));
-    $index++;
+    validate_exam(master_exam => \%master_exam, student_exam => \%exam, exam_name => $desired_exams[$exam_index]);
+    push (@results, correct_exams(master_exam => \%master_exam, student_exam => \%exam, exam_name => $desired_exams[$exam_index]));
+    $exam_index++;
 }
+#Print the result for all files to the console
 print_result_to_console(@results);
 
-
-
-#check all exams
-# {
-#     student => path,
-#     correct => 10,
-# }
-# Array that stores all hashes about the result
-
-
-
-
-
-
-sub check_answer($correct_answer, @answers){
-    chomp $correct_answer;
-    chomp (@answers);
-    # check that only one box is checked
-    my $crosses = map {$_ =~ /\[ \s* X \s* \]/xms} @answers;
-    show $crosses;
-}
 
 
 
