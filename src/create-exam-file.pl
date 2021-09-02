@@ -12,9 +12,8 @@ use Printer;
 my $master_file_name = $ARGV[0];
 
 #Task 1a
-my %master_exam = parse_master_file($master_file_name);
-show %master_exam;   
+my %master_exam = parse_master_file($master_file_name);   
 my %blank_exam = create_blank_exam(%master_exam);          
 print_exam_to_file($master_file_name, %blank_exam);
 
-show %master_exam;
+show %master_exam

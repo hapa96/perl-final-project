@@ -9,7 +9,7 @@ use POSIX 'strftime';
 use Term::ANSIColor qw(:constants);
 
 
-our @EXPORT = qw(print_exam_to_file);
+our @EXPORT = qw(print_exam_to_file print_result_to_console);
 
 
 sub print_exam_to_file($master_file_name,%blank_exam ){
@@ -45,6 +45,22 @@ sub print_exam_to_file($master_file_name,%blank_exam ){
     print GREEN, "Sucessfully created new blank Exam '$exam_file_name' \n", RESET;
 }
 
+sub print_result_to_console(@results){
+    print GREEN, "\n\nResults of Exam: \n", RESET;
+    for my$result_ref(@results){
+        my %result = %{$result_ref};
+        print_pretty($result{"name"},$result{"result"})
+    }
+}
+
+sub print_pretty($name, $result){
+    my $width = 60;
+    my $n_of_dots = $width - length ($name);
+    my $dots = "." x $n_of_dots;
+    print $name;
+    print $dots;
+    printf "%02d/%2d \n", $result ,30 ;
+}
 
 
 
