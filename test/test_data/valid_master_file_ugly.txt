@@ -1,0 +1,126 @@
+Complete this exam by placing an 'X' in the box beside each correct
+answer, like so:
+
+    [ ] This is not the correct answer
+    [ ] This is not the correct answer either
+    [ ] This is an incorrect answer
+    [X] This is the correct answer
+    [ ] This is an irrelevant answer
+
+Scoring: Each question is worth 2 points.
+         Final score will be: SUM / 10
+
+Warning: Each question has only one correct answer. Answers to questions
+         for which two or more boxes are marked with an 'X' will be scored as zero.
+
+________________________________________________________________________________
+________________________________________________________________________________
+
+    1. The type of a Perl variable is determined by:
+
+    [X] Nothing: Perl variables don't have a static type
+    [ ] The name of the variable
+    [ ] The type of the first value placed in the variable
+    [ ] The compile-time type declarator of the variable
+    [ ] Random chance
+
+________________________________________________________________________________
+
+
+2. Perl's three main types of call context (or "amount context") are:
+
+    [X] List, scalar, and void
+    [ ] List, linear, and void
+    [ ] List, scalar, and null
+    [ ] Null, scalar, and void
+    [ ] Blood, sweat, and tears
+
+=================================================================================
+
+    3. The "default variable" (or "topic variable") is:
+
+    [X] $_
+    [ ] @_
+    [ ] $$
+    [ ] $=
+    [ ] The last variable that was successfully assigned to
+
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+
+
+
+
+    4. You can access the command-line arguments of a Perl program via:
+
+    [X] @ARGV
+    [ ] $ARGV
+    [ ] @ARGS
+    [ ] @ARG
+    [ ] @_
+
+________________________________________________________________________________
+5. The main repository for Open Source Perl modules is:
+
+    [X] CPAN
+    [ ] CSPAN
+    [ ] Github
+    [ ] Perlhub
+    [ ] www.perl.org
+
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+
+6. The three standard sigils for variable declarations are:
+
+    [X] '$' for scalars, '@' for arrays, '%' for hashes
+    [ ] '$' for scalars, '@' for hashes, '%' for arrays
+    [ ] '$' for scalars, '@' for consts, '%' for literals
+    [ ] '$' for numeric, '@' for emails, '%' for percentages
+    [ ] '$' for lookups, '@' for reuses, '%' for declarations
+
+________________________________________________________________________________
+
+
+    7. The difference between a 'my' variable and an 'our' variable is:
+
+    [X] 'my' variables are lexically scoped; 'our' variables are package scoped
+    [ ] 'my' variables are subroutine scoped; 'our' variables are block scoped
+    [ ] 'my' variables are compile-time; 'our' variables are run-time
+    [ ] 'my' variables must be scalars; 'our' variables must be arrays or hashes
+    [ ] 'my' variables are assignable; 'our' variables are constants
+
+________________________________________________________________________________
+
+
+8. A single-quoted string (such as: 'I will achieve 100% on this exam')...
+
+    [X] ...does not interpolate variables or backslashed escape sequences
+    [ ] ...only interpolates variables, but not backslashed escape sequences
+    [ ] ...only interpolates backslashed escape sequences, but not variables
+    [ ] ...interpolates both variables and backslashed escape sequences
+    [ ] ...converts its contents to ASCII, even if they are Unicode characters
+
+________________________________________________________________________________
+
+
+9. The term qq{XXXXX} is...
+
+    [X] ...another way of writing the double-quoted string: "XXXXX"
+    [ ] ...another way of writing the single-quoted string: 'XXXXX'
+    [ ] ...another way of writing the list of strings:  ('X', 'X', 'X', 'X', 'X')
+    [ ] ...another way of writing the array of strings: ['X', 'X', 'X', 'X', 'X']
+    [ ] ...a call to the 'qq' function, passing it a block of code
+
+________________________________________________________________________________
+
+
+10. Which of the following is NOT a single valid Perl number?
+
+    [X] 1'042
+    [ ] 1042
+    [ ] 1_042
+    [ ] 1.042e3
+    [ ] 0b10000010010
