@@ -19,7 +19,7 @@ sub parse_master_file($path_to_file){
 
         <rule: Exam>               <Intro> <[Questions]>*
 
-        <rule: Questions>          <.Empty_Line>*? <Question> <.Empty_Line>*? <Delimeter>
+        <rule: Questions>          <.Empty_Line>*? <Question> <.Empty_Line>*? <.Delimeter>
 
         <rule: Intro>              <Intro_Text>  <Delimeter> <.Empty_Line>*
 

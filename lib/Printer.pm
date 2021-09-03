@@ -23,18 +23,19 @@ sub print_exam_to_file($master_file_name,%blank_exam ){
     open my $output, '>', "../data/Output/$exam_file_name"
         or die "Couldn't open save file";
     
-    #Print
     my $delimeter = $blank_exam{'Exam'}{'Intro'}{'Delimeter'};
     my $intro = $blank_exam{'Exam'}{'Intro'}{'Intro_Text'};
     my @questions = @{$blank_exam{'Exam'}{'Questions'}};
     #print Intro
-    say {$output} "$intro \n";
-    say {$output} "$delimeter";
+    chomp $delimeter;
+    $delimeter .= "\n";
+    print {$output} "$intro";
+    print {$output} "$delimeter";
     #print Questions
     for my $i (keys @questions){
         say {$output} $questions[$i]{"Question"}{"Task"};
         map {print{$output} $_} $questions[$i]{"Question"}{"Answers"} -> @*;
-        say {$output} "\n $delimeter \n";
+        print {$output} "\n\n$delimeter";
     }
 
     #Close Filehandler
