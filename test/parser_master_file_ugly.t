@@ -21,7 +21,7 @@ my $master_ref = \%master_exam;
 my $EXPECTED =     {
       Exam => {
         Intro => {
-          Delimeter  => "________________________________________________________________________________\n\n",
+          Delimeter  => "________________________________________________________________________________\n",
           Intro_Text => "Complete this exam by placing an 'X' in the box beside each correct\nanswer, like so:\n\n    [ ] This is not the correct answer\n    [ ] This is not the correct answer either\n    [ ] This is an incorrect answer\n    [X] This is the correct answer\n    [ ] This is an irrelevant answer\n\nScoring: Each question is worth 2 points.\n         Final score will be: SUM / 10\n\nWarning: Each question has only one correct answer. Answers to questions\n         for which two or more boxes are marked with an 'X' will be scored as zero.\n\n",
         },
         Questions => [

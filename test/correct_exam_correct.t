@@ -14,9 +14,9 @@ use Util;
 # Tell the module how many tests you plan to run...
 plan tests => 1;
 
-my $EXPECTED = { name => "test_data/exam_correct", result => 10 };
+my $EXPECTED = { name => "test_data/exam_correct.txt", result => 10 };
 my $master_file = "test_data/valid_master_file_normal.txt";
-my $exam_file = "test_data/exam_correct";
+my $exam_file = "test_data/exam_correct.txt";
 
 my %exam_hash = parse_exam_file($exam_file);
 my %master_hash = parse_master_file($master_file);
