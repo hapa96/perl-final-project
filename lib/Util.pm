@@ -86,30 +86,31 @@ sub check_questions(%args){
     my $all_questions_present = 1;
     my $printed_error_for_exam = 0; # Flag that ensures, that the file name is printed just the first time
     my $exam_name = $args{exam_name};
-
     my @master_questions = @{$args{master_questions}};
     my @student_questions = @{$args{student_questions}};
+    my @all_students_questions;
+    my @all_master_questions;
+
+    #Get all Questions into Arrays
     for my $index (keys @master_questions){
-        my $desired_question = $master_questions[$index]->{'Question'}{'Task'};
-        #Check if student exam has record
-        unless (exists ($student_questions[$index])){
-            $printed_error_for_exam ?  print "": print RED, "Warning: $exam_name: \n", RESET;
-            print WHITE, "\t Missing Question:  $desired_question\n \n", RESET;
+         push @all_master_questions , $master_questions[$index] -> {Question}{Task};
+         if (exists $student_questions[$index]){
+            push @all_students_questions , $student_questions[$index] -> {Question}{Task};
+         }
+    }
+    #Remove all starting and ending whhitespaces from string
+    map {$_ =~ s/^\s+|\s+$|\R//g} @all_master_questions;
+    map {$_ =~ s/^\s+|\s+$|\R//g} @all_students_questions;
+
+    # Check if all questions are present in exam file
+    my $all_files_are_present = 1;
+    for my $question(@all_master_questions){
+        unless (grep {$question eq $_} @all_students_questions){
+            $printed_error_for_exam ? print "" : print RED, "Warning: $exam_name \n" , RESET;
+            print WHITE, "\t > Missing Question: $question \n", RESET;
             $all_questions_present = 0;
-            $printed_error_for_exam = 1;
-            next; #start next iteration
-        }
-        my $student_question = $student_questions[$index] -> {"Question"}{"Task"};
-        
-        #Check, that question is exactly the same
-        $desired_question =~  s/^\s+|\s+$//g;
-        $student_question =~ s/^\s+|\s+$//g;
-        unless ($desired_question eq $student_question){
-            $printed_error_for_exam ? print "" : print RED, "Warning: $exam_name: \n", RESET;
-            print WHITE, "\t Question is not the same. Please Check:\n", RESET; 
-            print BLUE, "\t Expected:\n \t \t $desired_question\n", RESET;
-            print YELLOW "\t Got:\n \t \t $student_question \n\n", RESET;
-            $printed_error_for_exam = 1;
+            $printed_error_for_exam = 1; # Flag that ensures, that the file name is printed just the first time
+            next;
         }
     }
     return $all_questions_present; 
@@ -180,8 +181,4 @@ sub correct_exams(%args){
     }
     return \%result;
 }
-
-
-
 1; #Magic true value required at the end of module
-
