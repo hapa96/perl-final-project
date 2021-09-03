@@ -69,7 +69,6 @@ sub validate_exam( %args){
     my @student_questions = @{$args{student_exam}->{'Exam'}{'Questions'}};
     my $all_questions_are_present = check_questions(master_questions => \@master_questions, student_questions => \@student_questions,exam_name => $exam_name);
     check_answers(master_questions => \@master_questions, student_questions => \@student_questions, exam_name => $exam_name, error_already_printed => $all_questions_are_present ? 0 : 1);
-   
 }
 
 
@@ -81,7 +80,6 @@ sub validate_exam( %args){
 #       - exam_name                 : Name of the corresponding student file
 #   Returns:
 #       - $all_questions_present    : Returns true, if all questions from the master file are present.
-
 sub check_questions(%args){
     my $all_questions_present = 1;
     my $printed_error_for_exam = 0; # Flag that ensures, that the file name is printed just the first time
@@ -121,7 +119,7 @@ sub check_questions(%args){
 #       - master_questions          : Array ref. to the questions of the master file 
 #       - student_questions         : Array ref. to the questions of the student file
 #       - exam_name                 : Name of the corresponding student file
-
+#       - error_already_printed     : Flag if an Error was already printed for this exam_name
 sub check_answers(%args){
     my $printed_error_for_exam = $args{error_already_printed}; #Flag that indicates if an error message was printed during this subroutine
     my $exam_name = $args{exam_name};
@@ -135,6 +133,7 @@ sub check_answers(%args){
                 #check Answers
                 my @master_answers = ($master_questions[$index_master] -> {'Question'}{'Answers'}{'Correct_Answer'}, @{$master_questions[$index_master] -> {'Question'}{'Answers'}{'Other_Answer'}});
                 my @student_answers = @{$student_questions[$index_student] -> {'Question'}{'Answers'}};
+                #remove white spaces and checkboxes from all the diferent questions
                 map {$_ =~ s/^\s*?\[[^\]]+\]\h|\R*//xmsg } @master_answers;
                 map {$_ =~ s/^\s*?\[[^\]]+\]\h|\R*//xmsg } @student_answers;
 
@@ -150,28 +149,6 @@ sub check_answers(%args){
     }
 }
 
-
-
-
-#     for my $question (keys @master_questions){
-#         #Create flatend array with all question for each question
-#         my @master_answers = ($master_questions[$question] -> {'Question'}{'Answers'}{'Correct_Answer'}, @{$master_questions[$question] -> {'Question'}{'Answers'}{'Other_Answer'}});
-#         my @exam_answers = @{$student_questions[$question] -> {'Question'}{'Answers'}}; 
-        
-#         #remove Checkbox, leading spaces and ending spaces
-#         map {$_ =~ s/^\s*?\[[^\]]+\]\h|\R*//xmsg } @master_answers;
-#         map {$_ =~ s/^\s*?\[[^\]]+\]\h|\R*//xmsg } @exam_answers;
-
-#         #Checks, that every answer in the master file is present in the exam file
-#         for my $answer (@master_answers){
-#             unless(grep {$_ eq $answer} @exam_answers){    
-#                 $printed_error_for_exam ? print "" : print RED, "Warning: $exam_name: \n" , RESET;    
-#                 print WHITE, "\t Missing answer: $answer\n";
-#                 $printed_error_for_exam = 1;
-#             }
-#         }
-#     }
-# }
 # Corrects the students exam based on the master exam
 #   Parameters:
 #       - master_exam          : Hashtree of the master exam file
