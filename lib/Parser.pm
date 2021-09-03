@@ -19,15 +19,15 @@ sub parse_master_file($path_to_file){
 
         <rule: Exam>               <Intro> <[Questions]>*
 
-        <rule: Questions>          <.Empty_Line>*? <Question> <.Empty_Line>*? <.Delimeter>
+        <rule: Questions>          <.Empty_Line>*? <Question> <.Empty_Line>*? <.Delimeter>*
 
-        <rule: Intro>              <Intro_Text>  <Delimeter> <.Empty_Line>*
+        <rule: Intro>              <Intro_Text>  <Delimeter> <.Delimeter>* <.Empty_Line>*
 
-        <rule: Question>           <Task> <Answers> <.Empty_Line>+?
+        <rule: Question>           <Task> <Answers> 
 
         <rule: Answers>            <Correct_Answer> <[Other_Answer]>{4}
 
-        <token: Delimeter>          [_]+ \R*
+        <token: Delimeter>          [_=-]+ \R* 
 
         <token: Task>               \s*? [0-9]* [.] .+? (?: \.\.\.|:|\?) \R
 
@@ -63,7 +63,7 @@ sub parse_exam_file($path_to_file){
 
         <rule: Question>           <Task> <.Empty_Line>+? <[Answers]>{5} <.Empty_Line>*?
         
-        <token: Delimeter>          [_=]+ \R
+        <token: Delimeter>          [_=-]+ \R* 
 
         <token: Answers>            ^ \s* \[ [^]]* \] \N* \R 
 
@@ -100,6 +100,7 @@ sub parse_content($parser, $path_to_file ){
     if ($text =~ $parser){
         my %parsed_exam = %/;
     }
+
 
 }
 
