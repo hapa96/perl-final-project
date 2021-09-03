@@ -8,10 +8,12 @@ use Data::Show;
 use Algorithm::Numerical::Shuffle qw (shuffle);
 use Storable qw(dclone); # To create a deep copy of an object
 use Term::ANSIColor qw(:constants);
+use Lingua::StopWords qw( getStopWords );
+use Text::Levenshtein::Damerau qw (edistance);
 
 
 
-our @EXPORT = qw(create_blank_exam validate_exam correct_exams );
+our @EXPORT = qw(create_blank_exam validate_exam correct_exams compare_strings);
 
 # Creates a new Exam based on a master file
 #   Parameters:
@@ -96,23 +98,41 @@ sub check_questions(%args){
             push @all_students_questions , $student_questions[$index] -> {Question}{Task};
          }
     }
-    #Remove all starting and ending whhitespaces from string
-    map {$_ =~ s/^\s+|\s+$|\R//g} @all_master_questions;
-    map {$_ =~ s/^\s+|\s+$|\R//g} @all_students_questions;
 
     # Check if all questions are present in exam file
     my $all_files_are_present = 1;
     for my $question(@all_master_questions){
-        unless (grep {$question eq $_} @all_students_questions){
-            $printed_error_for_exam ? print "" : print RED, "Warning: $exam_name \n" , RESET;
-            print WHITE, "\t > Missing Question: $question \n", RESET;
-            $all_questions_present = 0;
-            $printed_error_for_exam = 1; # Flag that ensures, that the file name is printed just the first time
-            next;
+        my $highest = -1;
+        my $used_question;
+        for my $student_question (@all_students_questions){
+            my $res = compare_strings(master_string =>$question, student_string=>$student_question);
+            if ($highest < $res){
+                $highest = $res;
+                if($highest == 0){
+                    $used_question = $student_question;
+                }
+            }
         }
+        next if $highest == 1;
+        if ($highest == 0){
+            $printed_error_for_exam ? print "" : print RED, "Warning: $exam_name \n" , RESET;
+            # print WHITE, "\t > Missing Question: $question", RESET;
+            # print BLUE, "\t   Used instead $used_question \n", RESET;
+
+            printf "%20s %s", "> Missing Question:", $question;
+            printf "%20s %s\n", "  Used instead:", $used_question;
+        }
+        else{
+            $printed_error_for_exam ? print "" : print RED, "Warning: $exam_name \n" , RESET;
+            printf "%20s %s\n", "Missing Question:", $question;
+            $all_questions_present = 0;
+        }
+        $printed_error_for_exam = 1; # Flag that ensures, that the file name is printed just the first time
     }
-    return $all_questions_present; 
-}   
+    return $all_questions_present;          
+}
+        
+
 
 # Checks, that all possible answers from the master file are present in the exam file as well. If not, print directly out to console for further investigations.
 #   Parameters:
@@ -126,29 +146,43 @@ sub check_answers(%args){
     my @master_questions = @{$args{master_questions}};
     my @student_questions = @{$args{student_questions}};
     
-
     for my$index_master (keys @master_questions){
         for my$index_student ((keys @student_questions)){
-            if($master_questions[$index_master] -> {Question}{Task} eq $student_questions[$index_student] -> {Question}{Task}){
+            if(compare_strings(master_string => $master_questions[$index_master] -> {Question}{Task},student_string=>$student_questions[$index_student] -> {Question}{Task}) > -1 ) {
                 #check Answers
                 my @master_answers = ($master_questions[$index_master] -> {'Question'}{'Answers'}{'Correct_Answer'}, @{$master_questions[$index_master] -> {'Question'}{'Answers'}{'Other_Answer'}});
                 my @student_answers = @{$student_questions[$index_student] -> {'Question'}{'Answers'}};
-                #remove white spaces and checkboxes from all the diferent questions
-                map {$_ =~ s/^\s*?\[[^\]]+\]\h|\R*//xmsg } @master_answers;
-                map {$_ =~ s/^\s*?\[[^\]]+\]\h|\R*//xmsg } @student_answers;
-
-                for my $answer (@master_answers){
-                    unless(grep {$_ eq $answer} @student_answers){    
-                        $printed_error_for_exam ? print "" : print RED, "Warning: $exam_name: \n" , RESET;    
-                        print WHITE, "\t > Missing Answer: $answer\n";
-                        $printed_error_for_exam = 1;
+                #remove checkboxes and newlines
+                map {$_ =~ s{\[[^\]]*\]|\R*|\s\+}{}xmsg } @master_answers;
+                map {$_ =~ s{\[[^\]]*\]|\R* |\s\+}{}xmsg } @student_answers;
+                for my $master_answer (@master_answers){
+                    my $highest = -1;
+                    my $used_answer;
+                    for my $student_answer (@student_answers){
+                        my $res = compare_strings(master_string =>$master_answer, student_string=>$student_answer);
+                        if ($highest < $res){
+                            $highest = $res;
+                            if($highest == 0){
+                                $used_answer = $student_answer;
+                            }
+                        }
+                    }
+                    next if $highest == 1;
+                    if ($highest == 0){
+                        $printed_error_for_exam ? print "" : print RED, "Warning: $exam_name \n" , RESET;
+                        printf "%20s %s\n", "> Missing Answer:", $master_answer;
+                        printf "%20s %s\n\n", "Used instead:", $used_answer;
+                    }
+                    else{
+                        $printed_error_for_exam ? print "" : print RED, "Warning: $exam_name \n" , RESET;
+                        printf "%20s %s\n\n", "> Missing Answer:", $master_answer;
+                    }
+                    $printed_error_for_exam = 1; # Flag that ensures, that the file name is printed just the first time
                     }
                 }
             }
         }
     }
-}
-
 # Corrects the students exam based on the master exam
 #   Parameters:
 #       - master_exam          : Hashtree of the master exam file
@@ -182,6 +216,33 @@ sub correct_exams(%args){
             
     }
     return \%result;
+}
+
+# converting the text to lower-case;
+# removing any “stop words” from the text;
+# removing any sequence of whitespace characters at the start and/or the end of the text;
+# replacing any remaining sequence of whitespace characters within the text with a single space character.
+sub normalize_string($string){
+    state $stopwords = getStopWords('en');
+    $string = lc $string; 
+    #remove stop words and more than one space character between the words
+    $string = join ' ', grep { !$stopwords->{$_} } split /\s+/, $string;
+    #remove leading and ending spaces
+    $string =~  s{^\s+|\s+$}{}g;
+   return $string;
+}
+
+#
+#
+# Returns
+#   -     1: Strings are exactly identical
+#   -     0: Distance is smaller than 10%
+#   -    -1: Strings are not identical
+sub compare_strings(%args){
+    my $master_string  = normalize_string($args{master_string});
+    my $student_string = normalize_string($args{student_string});
+    my $max_distance = int(0.1 * length($master_string));
+    edistance($master_string, $student_string) <= $max_distance ? return $master_string eq $student_string  : return -1 ;
 }
 
 1; #Magic true value required at the end of module
