@@ -88,42 +88,45 @@ sub check_questions(%args){
     my $exam_name = $args{exam_name};
     my @master_questions = @{$args{master_questions}};
     my @student_questions = @{$args{student_questions}};
-    my @all_students_questions;
-    my @all_master_questions;
 
-    #Get all Questions into Arrays
-    for my $index (keys @master_questions){
-         push @all_master_questions , $master_questions[$index] -> {Question}{Task};
-         if (exists $student_questions[$index]){
-            push @all_students_questions , $student_questions[$index] -> {Question}{Task};
-         }
-    }
+    # #Get all Questions into Arrays
+    # for my $index (keys @master_questions){
+    #      push @all_master_questions , $master_questions[$index] -> {Question}{Task};
+    #      if (exists $student_questions[$index]){
+    #         push @all_students_questions , $student_questions[$index] -> {Question}{Task};
+    #      }
+    # }
 
     # Check if all questions are present in exam file
     my $all_files_are_present = 1;
-    for my $question(@all_master_questions){
+    for my $master_index(keys @master_questions){
         my $highest = -1;
         my $used_question;
-        for my $student_question (@all_students_questions){
-            my $res = compare_strings(master_string =>$question, student_string=>$student_question);
+        for my $student_index (keys @student_questions){ 
+            my $res = compare_strings(master_string =>$master_questions[$master_index] -> {Question}{Task}, student_string=>$student_questions[$student_index] -> {Question}{Task});
             if ($highest < $res){
                 $highest = $res;
                 if($highest == 0){
-                    $used_question = $student_question;
+                    $used_question = $student_questions[$student_index] -> {Question}{Task};
                 }
             }
         }
+        #Check all answers
+        
+
+
+        #check Question is the same...
         next if $highest == 1; # Text is exactly the same as in the master file
         
         if ($highest == 0){        #Distance is smaller than 10%
             $printed_error_for_exam ? print "" : print RED, "Warning: $exam_name \n" , RESET;
-            printf "%-20s %s", "> Missing Question:", $question;
+            printf "%-20s %s", "> Missing Question:", $master_questions[$master_index] -> {Question}{Task};
             printf "%-20s %s\n", "  Used instead:", $used_question;
         }
 
         else{   #Distance is bigger than 10%
             $printed_error_for_exam ? print "" : print RED, "Warning: $exam_name \n" , RESET;
-            printf "%-20s %s\n", "> Missing Question:", $question;
+            printf "%-20s %s\n", "> Missing Question:", $master_questions[$master_index] -> {Question}{Task};
             $all_questions_present = 0;
         }
         $printed_error_for_exam = 1; # Flag that ensures, that the file name is printed just the first time
