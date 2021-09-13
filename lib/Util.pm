@@ -113,18 +113,17 @@ sub check_questions(%args){
                 }
             }
         }
-        next if $highest == 1;
-        if ($highest == 0){
+        next if $highest == 1; # Text is exactly the same as in the master file
+        
+        if ($highest == 0){        #Distance is smaller than 10%
             $printed_error_for_exam ? print "" : print RED, "Warning: $exam_name \n" , RESET;
-            # print WHITE, "\t > Missing Question: $question", RESET;
-            # print BLUE, "\t   Used instead $used_question \n", RESET;
-
-            printf "%20s %s", "> Missing Question:", $question;
-            printf "%20s %s\n", "  Used instead:", $used_question;
+            printf "%-20s %s", "> Missing Question:", $question;
+            printf "%-20s %s\n", "  Used instead:", $used_question;
         }
-        else{
+
+        else{   #Distance is bigger than 10%
             $printed_error_for_exam ? print "" : print RED, "Warning: $exam_name \n" , RESET;
-            printf "%20s %s\n", "Missing Question:", $question;
+            printf "%-20s %s\n", "> Missing Question:", $question;
             $all_questions_present = 0;
         }
         $printed_error_for_exam = 1; # Flag that ensures, that the file name is printed just the first time
@@ -170,12 +169,12 @@ sub check_answers(%args){
                     next if $highest == 1;
                     if ($highest == 0){
                         $printed_error_for_exam ? print "" : print RED, "Warning: $exam_name \n" , RESET;
-                        printf "%20s %s\n", "> Missing Answer:", $master_answer;
-                        printf "%20s %s\n\n", "Used instead:", $used_answer;
+                        printf "%-20s %s\n", "> Missing Answer:", $master_answer;
+                        printf "%-20s %s\n\n", "Used instead:", $used_answer;
                     }
                     else{
                         $printed_error_for_exam ? print "" : print RED, "Warning: $exam_name \n" , RESET;
-                        printf "%20s %s\n\n", "> Missing Answer:", $master_answer;
+                        printf "%-20s %s\n\n", "> Missing Answer:",$master_answer; 
                     }
                     $printed_error_for_exam = 1; # Flag that ensures, that the file name is printed just the first time
                     }
@@ -218,10 +217,15 @@ sub correct_exams(%args){
     return \%result;
 }
 
-# converting the text to lower-case;
+# Normalized a given string acording to the description
 # removing any “stop words” from the text;
 # removing any sequence of whitespace characters at the start and/or the end of the text;
 # replacing any remaining sequence of whitespace characters within the text with a single space character.
+
+#   Parameters:
+#     - $string       string that will be normalized     
+#   Returns:
+#     - $string       Returns the normalized string
 sub normalize_string($string){
     state $stopwords = getStopWords('en');
     $string = lc $string; 
@@ -231,13 +235,14 @@ sub normalize_string($string){
     $string =~  s{^\s+|\s+$}{}g;
    return $string;
 }
-
-#
-#
-# Returns
-#   -     1: Strings are exactly identical
-#   -     0: Distance is smaller than 10%
-#   -    -1: Strings are not identical
+# Funciton to compare two strings using the Levenshtein Distance.
+# Parameters:   
+#               $master_string:     String from the master file
+#               $student_string:    String from the students exam file
+# Returns:      Integer Number
+#               - 1:                Strings are exactly identical
+#               - 0:                Distance is smaller than 10%
+#               - 1:                Strings are not identical
 sub compare_strings(%args){
     my $master_string  = normalize_string($args{master_string});
     my $student_string = normalize_string($args{student_string});
