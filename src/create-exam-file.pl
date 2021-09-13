@@ -15,5 +15,3 @@ my $master_file_name = $ARGV[0];
 my %master_exam = parse_master_file($master_file_name);
 my %blank_exam = create_blank_exam(%master_exam);          
 print_exam_to_file($master_file_name, %blank_exam);
-
-#show %master_exam

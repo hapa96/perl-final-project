@@ -19,10 +19,10 @@ use List::Util qw( min max);
 our @EXPORT = qw(create_blank_exam validate_exam correct_exams generate_statistics);
 
 # Creates a new Exam based on a master file
-#   Parameters:
-#       - %parsed_exam : Hashtree from the parsed master file
-#   Returns:
-#       - %blank_exam : The Hashtree of the new blank exam file
+# Parameters:
+#   - %parsed_exam : Hashtree from the parsed master file
+# Returns:
+#   - %blank_exam : The Hashtree of the new blank exam file
 sub create_blank_exam(%parsed_exam){
     # create a deep copy of the hash %parsed_exam
     my %blank_exam = %{dclone(\%parsed_exam)};
@@ -44,9 +44,9 @@ sub create_blank_exam(%parsed_exam){
     return %blank_exam;
 }
 
-# Removes all the crosses and shuffles the question 
-#   Parameters:
-#       - @questions : Array with all questions
+# Removes all the crosses and shuffles the questions
+# Parameters:
+#   - @questions : Array with all questions
 sub remove_cross_and_shuffle(@questions){
     for my $question(@questions){
         
@@ -62,10 +62,10 @@ sub remove_cross_and_shuffle(@questions){
 
 # Validates the exam in two steps. First checks that all the questions are present in the exam file. Afterwars check, that all the possible
 # Answers are present as well.
-#   Parameters:
-#       - master_questions          : Array ref. to the questions of the master file 
-#       - student_questions         : Array ref. to the questions of the student file
-#       - exam_name                 : Name of the corresponding student file
+# Parameters:
+#   - master_questions          : Array ref. to the questions of the master file 
+#   - student_questions         : Array ref. to the questions of the student file
+#   - exam_name                 : Name of the corresponding student file
 sub validate_exam( %args){
     our %statistic_of_exam;
     my $exam_name = $args{exam_name};
@@ -77,12 +77,12 @@ sub validate_exam( %args){
 
 
 # Checks, that all questions from master file are present in the students exam file. 
-#   Parameters:
-#       - master_questions          : Array ref. to the questions of the master file 
-#       - student_questions         : Array ref. to the questions of the student file
-#       - exam_name                 : Name of the corresponding student file
-#   Returns:
-#       - $all_questions_present    : Returns true, if all questions from the master file are present.
+# Parameters:
+#   - master_questions          : Array ref. to the questions of the master file 
+#   - student_questions         : Array ref. to the questions of the student file
+#   - exam_name                 : Name of the corresponding student file
+# Returns:
+#   - $all_questions_present    : Returns true, if all questions from the master file are present.
 sub check_questions(%args){
     my $all_questions_present = 1;
     my @master_questions = @{$args{master_questions}};
@@ -124,10 +124,10 @@ sub check_questions(%args){
 
 
 # Checks, that all possible answers from the master file are present in the exam file as well. If not, print directly out to console for further investigations.
-#   Parameters:
-#       - master_questions          : Array ref. to the questions of the master file 
-#       - student_questions         : Array ref. to the questions of the student file
-#       - exam_name                 : Name of the corresponding student file
+# Parameters:
+#   - master_questions          : Array ref. to the questions of the master file 
+#   - student_questions         : Array ref. to the questions of the student file
+#   - exam_name                 : Name of the corresponding student file
 sub check_answers(%args){
     my @master_answers = ($args{master_question}  -> {'Question'}{'Answers'}{'Correct_Answer'}, @{$args{master_question} -> {'Question'}{'Answers'}{'Other_Answer'}});
     my @student_answers = @{$args{student_question} -> {'Question'}{'Answers'}};
@@ -159,12 +159,12 @@ sub check_answers(%args){
 }
 
 # Corrects the students exam based on the master exam
-#   Parameters:
-#       - master_exam          : Hashtree of the master exam file
-#       - student_exam         : Hashtree of the student exam file
-#       - exam_name            : Name of the corresponding student file
-#   Returns:
-#       - %result              : Returns a result tree with name and score of the corrsponding student
+# Parameters:
+#   - master_exam          : Hashtree of the master exam file
+#   - student_exam         : Hashtree of the student exam file
+#   - exam_name            : Name of the corresponding student file
+# Returns:
+#   - %result              : Returns a result tree with name and score of the corrsponding student
 sub correct_exams(%args){
     my %result = (
         name => $args{exam_name},
@@ -198,11 +198,11 @@ sub correct_exams(%args){
 # removing any “stop words” from the text;
 # removing any sequence of whitespace characters at the start and/or the end of the text;
 # replacing any remaining sequence of whitespace characters within the text with a single space character.
-
-#   Parameters:
-#     - $string       string that will be normalized     
-#   Returns:
-#     - $string       Returns the normalized string
+#
+# Parameters:
+#   - $string       string that will be normalized     
+# Returns:
+#   - $string       Returns the normalized string
 sub normalize_string($string){
     state $stopwords = getStopWords('en');
     $string = lc $string; 
@@ -215,18 +215,24 @@ sub normalize_string($string){
 
 # Funciton to compare two strings using the Levenshtein Distance.
 # Parameters:   
-#               $master_string:     String from the master file
-#               $student_string:    String from the students exam file
-# Returns:      Integer Number
-#               - 1:                Strings are exactly identical
-#               - 0:                Distance is smaller than 10%
-#               - 1:                Strings are not identical
+#   - $master_string:     String from the master file
+#   - $student_string:    String from the students exam file
+#
+# Returns an Integer Number:
+#   - 1:                Strings are exactly identical
+#   - 0:                Distance is smaller than 10%
+#   - 1:                Strings are not identical
 sub compare_strings(%args){
     my $master_string  = normalize_string($args{master_string});
     my $student_string = normalize_string($args{student_string});
     my $max_distance = int(0.1 * length($master_string));
     edistance($master_string, $student_string) <= $max_distance ? return $master_string eq $student_string  : return -1 ;
 }
+# Generate all the statistics from the result array
+# Parameters:
+#   - @results   :   Arary with hashes of all the results
+# Returns:
+#   - %stats    :   Hash with all the information to print the statistics
 
 sub generate_statistics(@results){
     my $students = 0;

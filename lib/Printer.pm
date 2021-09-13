@@ -11,7 +11,10 @@ use Term::ANSIColor qw(:constants);
 
 our @EXPORT = qw(print_exam_to_file print_result_to_console console_printer print_statistics_to_console);
 
-
+# Prints a new and blank report from a master file
+# Arguments:
+#   - $master_file_name :   name of the master file
+#   - %blank_exam       :   The new exam as a hash
 sub print_exam_to_file($master_file_name, %blank_exam ){
     print YELLOW, "Creating blank Exam based on $master_file_name ...\n", RESET;
 
@@ -45,7 +48,9 @@ sub print_exam_to_file($master_file_name, %blank_exam ){
     }
     print GREEN, "Sucessfully created new blank Exam '$exam_file_name' \n", RESET;
 }
-
+# Print all the results of the corrected exams to the console
+# Arguments:
+#   - @results  :   Array of hashes, that stores all results. 
 sub print_result_to_console(@results){
     print GREEN, "\n\nResults of Exam: \n", RESET;
     for my$result_ref(@results){
@@ -54,6 +59,11 @@ sub print_result_to_console(@results){
     }
 }
 
+# Prints pretty to the console with dots in between to ensure a nice experience while reading from the console
+# Arguments:
+#   - $args{name}   :   name of the exam 
+#   - $args{total}  :   if function is used to print result, use this to specify total number of exams
+#   - $args{result} :   actual result for this exam
 sub print_pretty(%args){
     my $width = 80;
     my $n_of_dots = $width - length ($args{name});
@@ -70,7 +80,6 @@ sub print_pretty(%args){
 
 
 # Function for printing warnings to console
-
 # Arguments:
 #     - $args{master_text}        :   Text of the master File
 #     - $args{exam_name}          :   Name of the corresponding exam file
@@ -95,6 +104,9 @@ sub console_printer(%args){
     $already_printed{$args{exam_name}}++;        # add record for exam_name
 }
 
+# Function to print the generated statistics.
+# Arguments:
+#     - A hash that stores all the information about the statistics of checked exams
 sub print_statistics_to_console(%stats){
     print GREEN, "\nStatistics of Exam: \n", RESET;
     print_pretty(name => "Average number of questions answered", result => "$stats{average_question_answered}");
