@@ -9,7 +9,7 @@ use POSIX 'strftime';
 use Term::ANSIColor qw(:constants);
 
 
-our @EXPORT = qw(print_exam_to_file print_result_to_console console_printer);
+our @EXPORT = qw(print_exam_to_file print_result_to_console console_printer print_statistics_to_console);
 
 
 sub print_exam_to_file($master_file_name, %blank_exam ){
@@ -50,18 +50,24 @@ sub print_result_to_console(@results){
     print GREEN, "\n\nResults of Exam: \n", RESET;
     for my$result_ref(@results){
         my %result = %{$result_ref};
-        print_pretty($result{"name"},$result{"result"})
+        print_pretty(name => $result{"name"},result => $result{"result"}, total => 30);
     }
 }
 
-sub print_pretty($name, $result){
-    my $width = 60;
-    my $n_of_dots = $width - length ($name);
+sub print_pretty(%args){
+    my $width = 80;
+    my $n_of_dots = $width - length ($args{name});
     my $dots = "." x $n_of_dots;
-    print $name;
+    print $args{name};
     print $dots;
-    printf "%02d/%2d \n", $result ,30 ;
+    if(exists $args{total}){
+        printf "%02d/%2d \n", $args{result} ,$args{total};
+    }
+    else{
+        printf "%s\n", $args{result};
+    }
 }
+
 
 # Function for printing warnings to console
 
@@ -89,5 +95,17 @@ sub console_printer(%args){
     $already_printed{$args{exam_name}}++;        # add record for exam_name
 }
 
+sub print_statistics_to_console(%stats){
+    print GREEN, "\nStatistics of Exam: \n", RESET;
+    print_pretty(name => "Average number of questions answered", result => "$stats{average_question_answered}");
+    print_pretty(name => "        Minimum", result => "$stats{min_questions_answered}   ($stats{min_questions_answered_n} students)");
+    print_pretty(name => "        Maximum", result => "$stats{max_questions_answered}   ($stats{max_questions_answered_n} students)");
+    print "\n";
+    print_pretty(name => "Average number of correct answers", result => "$stats{average_correct_answers}");
+    print_pretty(name => "        Minimum", result => sprintf ("%02d", $stats{min_correct_answered}) . "   ($stats{min_correct_answered_n} students)");
+    print_pretty(name => "        Maximum", result => sprintf ("%02d", $stats{max_correct_answered}) . "   ($stats{max_correct_answered_n} students)");
+
+
+}
 
 1; #Magic true value required at the end of module

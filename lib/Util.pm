@@ -11,10 +11,12 @@ use Term::ANSIColor qw(:constants);
 use Lingua::StopWords qw( getStopWords );
 use Text::Levenshtein::Damerau qw (edistance);
 use Printer;
+use List::Util qw( min max);
 
 
 
-our @EXPORT = qw(create_blank_exam validate_exam correct_exams compare_strings);
+
+our @EXPORT = qw(create_blank_exam validate_exam correct_exams generate_statistics);
 
 # Creates a new Exam based on a master file
 #   Parameters:
@@ -65,6 +67,7 @@ sub remove_cross_and_shuffle(@questions){
 #       - student_questions         : Array ref. to the questions of the student file
 #       - exam_name                 : Name of the corresponding student file
 sub validate_exam( %args){
+    our %statistic_of_exam;
     my $exam_name = $args{exam_name};
     my @master_questions = @{$args{master_exam}->{'Exam'}{'Questions'}};
     my @student_questions = @{$args{student_exam}->{'Exam'}{'Questions'}};
@@ -166,6 +169,7 @@ sub correct_exams(%args){
     my %result = (
         name => $args{exam_name},
         result => 0,
+        answered => 0,
     );
     my @master_questions = @{$args{master_exam}->{'Exam'}{'Questions'}};
     my @student_questions = @{$args{student_exam}->{'Exam'}{'Questions'}};
@@ -178,7 +182,7 @@ sub correct_exams(%args){
         
         #If @given_answers is not 1 (more than one or none answer was choosen)
         next unless(scalar (@given_ansers) == 1);
-
+        $result{answered}++;
         #remove the checkbox, leading and ending whitespaces as well as all kind of new lines
         $given_ansers[0] =~ s/^\s*?\[[^\]]+\]\h|\R*//xmsg;
         $master_questions[$question]->{'Question'}{'Answers'}{'Correct_Answer'} =~ s{^\s*?\[[^\]]+\]\h|\R*}{}xmsg;
@@ -222,6 +226,41 @@ sub compare_strings(%args){
     my $student_string = normalize_string($args{student_string});
     my $max_distance = int(0.1 * length($master_string));
     edistance($master_string, $student_string) <= $max_distance ? return $master_string eq $student_string  : return -1 ;
+}
+
+sub generate_statistics(@results){
+    my $students = 0;
+    my $answered_correct_acc = 0;
+    my $answered_acc = 0;
+    my %question_answered_stats;
+    my %correct_answers_stats;
+
+    for my $hash (@results){
+        $answered_acc += $hash->{answered};
+        $answered_correct_acc += $hash->{result};
+        $students ++;
+        $question_answered_stats{$hash -> {answered}}++;
+        $correct_answers_stats  {$hash -> {result}}++;
+    }
+    my $min_questions = min(keys %question_answered_stats);
+    my $max_questions = max(keys %question_answered_stats);
+
+    my $min_correct_answers = min(keys %correct_answers_stats);
+    my $max_correct_answers = max(keys %correct_answers_stats);
+
+    my %stats = (
+        average_question_answered  => int($answered_acc/$students),
+        min_questions_answered     => $min_questions, 
+        min_questions_answered_n   => $question_answered_stats{$min_questions},
+        max_questions_answered     => $max_questions,
+        max_questions_answered_n   => $question_answered_stats{$max_questions},
+        average_correct_answers    => int($answered_correct_acc / $students),
+        min_correct_answered       => $min_correct_answers,
+        min_correct_answered_n     => $correct_answers_stats{$min_correct_answers},
+        max_correct_answered       => $max_correct_answers,
+        max_correct_answered_n     => $correct_answers_stats{$max_correct_answers},
+    );
+    return %stats
 }
 
 1; #Magic true value required at the end of module

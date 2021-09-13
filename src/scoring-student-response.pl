@@ -38,6 +38,8 @@ for my $exam_ref (@exams_hash_array){
 }
 #Print the result for all files to the console
 print_result_to_console(@results);
+my %stats = generate_statistics(@results);
+print_statistics_to_console(%stats);
 
 
 
