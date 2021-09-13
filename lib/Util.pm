@@ -10,6 +10,7 @@ use Storable qw(dclone); # To create a deep copy of an object
 use Term::ANSIColor qw(:constants);
 use Lingua::StopWords qw( getStopWords );
 use Text::Levenshtein::Damerau qw (edistance);
+use Printer;
 
 
 
@@ -20,7 +21,6 @@ our @EXPORT = qw(create_blank_exam validate_exam correct_exams compare_strings);
 #       - %parsed_exam : Hashtree from the parsed master file
 #   Returns:
 #       - %blank_exam : The Hashtree of the new blank exam file
-
 sub create_blank_exam(%parsed_exam){
     # create a deep copy of the hash %parsed_exam
     my %blank_exam = %{dclone(\%parsed_exam)};
@@ -64,13 +64,11 @@ sub remove_cross_and_shuffle(@questions){
 #       - master_questions          : Array ref. to the questions of the master file 
 #       - student_questions         : Array ref. to the questions of the student file
 #       - exam_name                 : Name of the corresponding student file
-
 sub validate_exam( %args){
     my $exam_name = $args{exam_name};
     my @master_questions = @{$args{master_exam}->{'Exam'}{'Questions'}};
     my @student_questions = @{$args{student_exam}->{'Exam'}{'Questions'}};
     my $all_questions_are_present = check_questions(master_questions => \@master_questions, student_questions => \@student_questions,exam_name => $exam_name);
-    check_answers(master_questions => \@master_questions, student_questions => \@student_questions, exam_name => $exam_name, error_already_printed => $all_questions_are_present ? 0 : 1);
 }
 
 
@@ -84,52 +82,38 @@ sub validate_exam( %args){
 #       - $all_questions_present    : Returns true, if all questions from the master file are present.
 sub check_questions(%args){
     my $all_questions_present = 1;
-    my $printed_error_for_exam = 0; # Flag that ensures, that the file name is printed just the first time
-    my $exam_name = $args{exam_name};
     my @master_questions = @{$args{master_questions}};
     my @student_questions = @{$args{student_questions}};
-
-    # #Get all Questions into Arrays
-    # for my $index (keys @master_questions){
-    #      push @all_master_questions , $master_questions[$index] -> {Question}{Task};
-    #      if (exists $student_questions[$index]){
-    #         push @all_students_questions , $student_questions[$index] -> {Question}{Task};
-    #      }
-    # }
 
     # Check if all questions are present in exam file
     my $all_files_are_present = 1;
     for my $master_index(keys @master_questions){
         my $highest = -1;
         my $used_question;
-        for my $student_index (keys @student_questions){ 
-            my $res = compare_strings(master_string =>$master_questions[$master_index] -> {Question}{Task}, student_string=>$student_questions[$student_index] -> {Question}{Task});
+        my $student_index;
+        for my $index (keys @student_questions){ 
+            my $res = compare_strings(master_string =>$master_questions[$master_index] -> {Question}{Task}, student_string=>$student_questions[$index] -> {Question}{Task});
             if ($highest < $res){
+                $student_index = $index;
                 $highest = $res;
                 if($highest == 0){
-                    $used_question = $student_questions[$student_index] -> {Question}{Task};
+                    $used_question = $student_questions[$index] -> {Question}{Task};
                 }
             }
         }
-        #Check all answers
-        
-
-
-        #check Question is the same...
-        next if $highest == 1; # Text is exactly the same as in the master file
-        
-        if ($highest == 0){        #Distance is smaller than 10%
-            $printed_error_for_exam ? print "" : print RED, "Warning: $exam_name \n" , RESET;
-            printf "%-20s %s", "> Missing Question:", $master_questions[$master_index] -> {Question}{Task};
-            printf "%-20s %s\n", "  Used instead:", $used_question;
+        #Distance is smaller than 10%
+        if ($highest == 0){        
+           console_printer(master_text =>$master_questions[$master_index] -> {Question}{Task}, exam_name => $args{exam_name}, used_instead => $used_question, type => "Question");
         }
-
-        else{   #Distance is bigger than 10%
-            $printed_error_for_exam ? print "" : print RED, "Warning: $exam_name \n" , RESET;
-            printf "%-20s %s\n", "> Missing Question:", $master_questions[$master_index] -> {Question}{Task};
+        #Distance is bigger than 10%
+        elsif($highest == -1){   
+           console_printer(master_text =>$master_questions[$master_index] -> {Question}{Task}, exam_name => $args{exam_name}, type => "Question");
             $all_questions_present = 0;
         }
-        $printed_error_for_exam = 1; # Flag that ensures, that the file name is printed just the first time
+        if($highest != -1){
+        #Check all answers from a question. Only check, if question is present.
+        check_answers(master_question => $master_questions[$master_index], student_question => $student_questions[$student_index], exam_name => $args{exam_name});
+        }
     }
     return $all_questions_present;          
 }
@@ -141,50 +125,36 @@ sub check_questions(%args){
 #       - master_questions          : Array ref. to the questions of the master file 
 #       - student_questions         : Array ref. to the questions of the student file
 #       - exam_name                 : Name of the corresponding student file
-#       - error_already_printed     : Flag if an Error was already printed for this exam_name
 sub check_answers(%args){
-    my $printed_error_for_exam = $args{error_already_printed}; #Flag that indicates if an error message was printed during this subroutine
-    my $exam_name = $args{exam_name};
-    my @master_questions = @{$args{master_questions}};
-    my @student_questions = @{$args{student_questions}};
-    
-    for my$index_master (keys @master_questions){
-        for my$index_student ((keys @student_questions)){
-            if(compare_strings(master_string => $master_questions[$index_master] -> {Question}{Task},student_string=>$student_questions[$index_student] -> {Question}{Task}) > -1 ) {
-                #check Answers
-                my @master_answers = ($master_questions[$index_master] -> {'Question'}{'Answers'}{'Correct_Answer'}, @{$master_questions[$index_master] -> {'Question'}{'Answers'}{'Other_Answer'}});
-                my @student_answers = @{$student_questions[$index_student] -> {'Question'}{'Answers'}};
-                #remove checkboxes and newlines
-                map {$_ =~ s{\[[^\]]*\]|\R*|\s\+}{}xmsg } @master_answers;
-                map {$_ =~ s{\[[^\]]*\]|\R* |\s\+}{}xmsg } @student_answers;
-                for my $master_answer (@master_answers){
-                    my $highest = -1;
-                    my $used_answer;
-                    for my $student_answer (@student_answers){
-                        my $res = compare_strings(master_string =>$master_answer, student_string=>$student_answer);
-                        if ($highest < $res){
-                            $highest = $res;
-                            if($highest == 0){
-                                $used_answer = $student_answer;
-                            }
-                        }
-                    }
-                    next if $highest == 1;
-                    if ($highest == 0){
-                        $printed_error_for_exam ? print "" : print RED, "Warning: $exam_name \n" , RESET;
-                        printf "%-20s %s\n", "> Missing Answer:", $master_answer;
-                        printf "%-20s %s\n\n", "Used instead:", $used_answer;
-                    }
-                    else{
-                        $printed_error_for_exam ? print "" : print RED, "Warning: $exam_name \n" , RESET;
-                        printf "%-20s %s\n\n", "> Missing Answer:",$master_answer; 
-                    }
-                    $printed_error_for_exam = 1; # Flag that ensures, that the file name is printed just the first time
-                    }
+    my @master_answers = ($args{master_question}  -> {'Question'}{'Answers'}{'Correct_Answer'}, @{$args{master_question} -> {'Question'}{'Answers'}{'Other_Answer'}});
+    my @student_answers = @{$args{student_question} -> {'Question'}{'Answers'}};
+
+    #remove checkboxes, whitespaces and newlines
+    map {$_ =~ s{\[[^\]]*\]|\R*|\s{2,}}{}xmsg } @master_answers;
+    map {$_ =~ s{\[[^\]]*\]|\R*|\s{2,}}{}xmsg } @student_answers;
+    for my $master_answer (@master_answers){
+        my $highest = -1;
+        my $used_answer;
+        for my $student_answer (@student_answers){
+            my $res = compare_strings(master_string =>$master_answer, student_string=>$student_answer);
+            if ($highest < $res){
+                $highest = $res;
+                if($highest == 0){
+                    $used_answer = $student_answer;
                 }
             }
         }
+        next if $highest == 1;
+        if ($highest == 0){        
+           console_printer(master_text => $master_answer, exam_name => $args{exam_name}, used_instead => $used_answer, type => "Answer");
+        }
+        #Distance is bigger than 10%
+        elsif($highest == -1){   
+           console_printer(master_text => $master_answer, exam_name => $args{exam_name}, type => "Answer");
+        }
     }
+}
+
 # Corrects the students exam based on the master exam
 #   Parameters:
 #       - master_exam          : Hashtree of the master exam file
@@ -211,7 +181,7 @@ sub correct_exams(%args){
 
         #remove the checkbox, leading and ending whitespaces as well as all kind of new lines
         $given_ansers[0] =~ s/^\s*?\[[^\]]+\]\h|\R*//xmsg;
-        $master_questions[$question]->{'Question'}{'Answers'}{'Correct_Answer'} =~ s/^\s*?\[[^\]]+\]\h|\R*//xmsg;
+        $master_questions[$question]->{'Question'}{'Answers'}{'Correct_Answer'} =~ s{^\s*?\[[^\]]+\]\h|\R*}{}xmsg;
         
         #If the same answer was choosen, increment result counter
         $result{"result"}++ if ($given_ansers[0] eq $master_questions[$question]->{'Question'}{'Answers'}{'Correct_Answer'})
@@ -238,6 +208,7 @@ sub normalize_string($string){
     $string =~  s{^\s+|\s+$}{}g;
    return $string;
 }
+
 # Funciton to compare two strings using the Levenshtein Distance.
 # Parameters:   
 #               $master_string:     String from the master file
