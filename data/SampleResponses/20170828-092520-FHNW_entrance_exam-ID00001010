@@ -160,7 +160,7 @@ ________________________________________________________________________________
 
 ________________________________________________________________________________
 
-14. "Short-circuiting" of a boolean expression means...
+14. "Short-circuiting" of a bolean expression means...
 
     [X] ...Perl evaluates as little as required to get a definite answer
     [ ] ...Perl only evaluates each boolean expression once during the program

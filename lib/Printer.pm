@@ -110,14 +110,12 @@ sub console_printer(%args){
 sub print_statistics_to_console(%stats){
     print GREEN, "\nStatistics of Exam: \n", RESET;
     print_pretty(name => "Average number of questions answered", result => "$stats{average_question_answered}");
-    print_pretty(name => "        Minimum", result => "$stats{min_questions_answered}   ($stats{min_questions_answered_n} students)");
-    print_pretty(name => "        Maximum", result => "$stats{max_questions_answered}   ($stats{max_questions_answered_n} students)");
+    print_pretty(name => "        Minimum", result => sprintf ("%02d", $stats{min_questions_answered}) . "   ($stats{min_questions_answered_n} student(s))");
+    print_pretty(name => "        Maximum", result => sprintf ("%02d", $stats{max_questions_answered}) . "   ($stats{max_questions_answered_n} student(s))");
     print "\n";
     print_pretty(name => "Average number of correct answers", result => "$stats{average_correct_answers}");
-    print_pretty(name => "        Minimum", result => sprintf ("%02d", $stats{min_correct_answered}) . "   ($stats{min_correct_answered_n} students)");
-    print_pretty(name => "        Maximum", result => sprintf ("%02d", $stats{max_correct_answered}) . "   ($stats{max_correct_answered_n} students)");
-
-
+    print_pretty(name => "        Minimum", result => sprintf ("%02d", $stats{min_correct_answered})   . "   ($stats{min_correct_answered_n} student(s))");
+    print_pretty(name => "        Maximum", result => sprintf ("%02d", $stats{max_correct_answered})   . "   ($stats{max_correct_answered_n} student(s))");
 }
 
 1; #Magic true value required at the end of module
