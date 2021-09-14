@@ -40,7 +40,8 @@ for my $exam_ref (@exams_hash_array){
 print_result_to_console(@results);
 my %stats = generate_statistics(@results);
 print_statistics_to_console(%stats);
-suspicious_results(@results);
+my %suspicious_exams = suspicious_results(@results);
+print_suspicious_exams(%suspicious_exams);
 
 
 

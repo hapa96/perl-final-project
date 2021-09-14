@@ -281,16 +281,23 @@ sub suspicious_results(@results){
     my %suspicious_exams;
 
     for my $result (@results){
-        if($result->{answered} < $result -> {total_questions}){
-            push (@{$suspicious_exams{$result -> {name}}}, "less than 50% of all questions anwred");
+
+        if($result->{answered} < $result -> {total_questions} / 2){
+            push (@{$suspicious_exams{$result -> {name}}{messages}}, "less than 50% of all questions answered");
         }
-        if($result ->{result} < $result -> {total_questions}){
-            push (@{$suspicious_exams{$result -> {name}}}, "score < 50%");
+        if($result ->{result} < $result -> {total_questions} / 2){
+            push (@{$suspicious_exams{$result -> {name}}{messages}}, "score < 50%");
         }
         if($result -> {result} < $result -> {answered} / 2){
-            push (@{$suspicious_exams{$result -> {name}}},"more than 50% of answered questions are wrong");
+            push (@{$suspicious_exams{$result -> {name}}{messages}}, "more than 50% of answered questions are wrong");
+        }
+        #If any of the suspicious attributes are matching, save mor infos about the exam in the hash
+        if($suspicious_exams{$result -> {name}}){       
+            $suspicious_exams{$result -> {name}}{result} = $result -> {result};
+            $suspicious_exams{$result -> {name}}{total_questions} = $result -> {total_questions};
         }
     }
+    return %suspicious_exams;
 }
 
 1; #Magic true value required at the end of module

@@ -9,7 +9,7 @@ use POSIX 'strftime';
 use Term::ANSIColor qw(:constants);
 
 
-our @EXPORT = qw(print_exam_to_file print_result_to_console console_printer print_statistics_to_console);
+our @EXPORT = qw(print_exam_to_file print_result_to_console console_printer print_statistics_to_console print_suspicious_exams);
 
 # Prints a new and blank report from a master file
 # Arguments:
@@ -17,7 +17,7 @@ our @EXPORT = qw(print_exam_to_file print_result_to_console console_printer prin
 #   - %blank_exam       :   The new exam as a hash
 sub print_exam_to_file($master_file_name, %blank_exam ){
     print YELLOW, "Creating blank Exam based on $master_file_name ...\n", RESET;
-    
+
     #Create name for new file
     my $timestamp = strftime '%Y%m%d-%H%M%S', localtime;
     #crop the filename without full path
@@ -58,6 +58,7 @@ sub print_result_to_console(@results){
     for my$result_ref(@results){
         my %result = %{$result_ref};
         print_pretty(name => $result{"name"},result => $result{"result"}, total => $result{total_questions});
+        print "\n";
     }
 }
 
@@ -73,7 +74,7 @@ sub print_pretty(%args){
     print $args{name};
     print $dots;
     if(exists $args{total}){
-        printf "%02d/%2d \n", $args{result} ,$args{total};
+        printf "%02d/%2d", $args{result} ,$args{total};
     }
     else{
         printf "%s\n", $args{result};
@@ -118,6 +119,18 @@ sub print_statistics_to_console(%stats){
     print_pretty(name => "Average number of correct answers", result => "$stats{average_correct_answers}");
     print_pretty(name => "        Minimum", result => sprintf ("%02d", $stats{min_correct_answered})   . "   ($stats{min_correct_answered_n} student(s))");
     print_pretty(name => "        Maximum", result => sprintf ("%02d", $stats{max_correct_answered})   . "   ($stats{max_correct_answered_n} student(s))");
+}
+
+sub print_suspicious_exams(%suspicious_exams){
+    if(keys %suspicious_exams){
+        print YELLOW, "\nSuspicious Exams: \n", RESET;
+        for my $key (keys %suspicious_exams){
+            print_pretty(name => "        $key", result => $suspicious_exams{$key}->{result}, total => $suspicious_exams{$key}->{total_questions});
+            #Print reason for suspiciousnes
+            my $messages = " (" . join (", ", $suspicious_exams{$key}{messages} -> @*) . " )" ;
+            print "$messages \n";
+        }
+    }
 }
 
 1; #Magic true value required at the end of module
