@@ -3,7 +3,6 @@ use warnings;
 use diagnostics;
 use Data::Show;
 use experimental 'signatures';
-use FindBin;                     # locate this script
 use lib "../lib";  # use the parent directory
 
 #Custom Modules in lib folder
