@@ -8,8 +8,13 @@ use Exporter ('import');
 
 
 our @EXPORT = ('parse_master_file', 'parse_exam_file');
-
-sub parse_master_file($path_to_file){
+# Parses a master file and generates a new hash for further procedure.
+#  Parameter:
+#       - $parse_exam_file :    Path to the corresponding master file
+#
+#  Returns:
+#       - %parsed_exam :    Hash datastructure of the parsed file
+sub parse_master_file($parse_exam_file){
     my $parser = qr{
         #<debug:on>
 
@@ -45,7 +50,12 @@ sub parse_master_file($path_to_file){
     parse_content($parser, $path_to_file )
 
 }
-
+# Parses an exam file and generates a new hash for further procedure.
+#  Parameter:
+#       - $parse_exam_file :    Path to the corresponding master file
+#
+#  Returns:
+#       - %parsed_exam :    Hash datastructure of the parsed file
 sub parse_exam_file($path_to_file){
     my $parser = qr{
         
@@ -80,6 +90,11 @@ sub parse_exam_file($path_to_file){
 
 }
 #Helper Function for Parsing a file
+# Parameters:
+#    -$parser        : grammer for parsing the file
+#    -$path_to_file  : path to the corresponding file
+# Returns:
+#    -%parsed_exam   : Hash datastrucure of the parsed file
 sub parse_content($parser, $path_to_file ){
     #Check if Filename exist
     my $filename;
@@ -100,8 +115,6 @@ sub parse_content($parser, $path_to_file ){
     if ($text =~ $parser){
         my %parsed_exam = %/;
     }
-
-
 }
 
 
