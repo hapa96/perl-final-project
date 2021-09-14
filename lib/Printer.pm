@@ -121,13 +121,16 @@ sub print_statistics_to_console(%stats){
     print_pretty(name => "        Maximum", result => sprintf ("%02d", $stats{max_correct_answered})   . "   ($stats{max_correct_answered_n} student(s))");
 }
 
+# Prints suspicious exams to the console
+# Arguments:
+#     -%suspicious_exams  :   Hash with all suspicious exams along with the corrisponding message
 sub print_suspicious_exams(%suspicious_exams){
     if(keys %suspicious_exams){
         print YELLOW, "\nSuspicious Exams: \n", RESET;
         for my $key (keys %suspicious_exams){
             print_pretty(name => "        $key", result => $suspicious_exams{$key}->{result}, total => $suspicious_exams{$key}->{total_questions});
             #Print reason for suspiciousnes
-            my $messages = " (" . join (", ", $suspicious_exams{$key}{messages} -> @*) . " )" ;
+            my $messages = " (" . join (", ", $suspicious_exams{$key}{messages} -> @*) . ")" ;
             print "$messages \n";
         }
     }
