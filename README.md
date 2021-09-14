@@ -14,7 +14,7 @@ To generate a new exam from a master file, you can use the script [create-exam-f
 perl create-exam-file.pl  ../data/MasterFiles/FHNW_entrance_exam_master_file_2017.txt
 ```
 ### Task 1b with Extension 2 and Extension 3
-To score new exam file based on a master file, you can use the script [scoring-student-responde.pl](src/scoring-student-response.pl). This scipt expects two additional arguments. ARGV0 = master file. ARGV1 = exam folder with REGEX Expression
+To score new exam file based on a master file, you can use the script [scoring-student-response.pl](src/scoring-student-response.pl). This scipt expects two additional arguments. ARGV0 = master file. ARGV1 = exam folder with REGEX Expression
 ```
  perl scoring-student-response.pl ../data/MasterFiles/FHNW_entrance_exam_master_file_2017.txt ../data/SampleResponses/.*
 ```
