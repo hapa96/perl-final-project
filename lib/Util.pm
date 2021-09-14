@@ -16,7 +16,7 @@ use List::Util qw( min max);
 
 
 
-our @EXPORT = qw(create_blank_exam validate_exam correct_exams generate_statistics suspicious_results);
+our @EXPORT = qw(create_blank_exam validate_exam correct_exams generate_statistics suspicious_results compare_strings);
 
 # Creates a new Exam based on a master file
 # Parameters:
