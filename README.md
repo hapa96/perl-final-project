@@ -16,7 +16,7 @@ perl create-exam-file.pl  ../data/MasterFiles/FHNW_entrance_exam_master_file_201
 ### Task 1b with Extension 2 and Extension 3
 To score new exam file based on a master file, you can use the script [scoring-student-response.pl](src/scoring-student-response.pl). This scipt expects two additional arguments. ARGV0 = master file. ARGV1 = exam folder with REGEX Expression
 ```
- perl scoring-student-response.pl ../data/MasterFiles/FHNW_entrance_exam_master_file_2017.txt ../data/SampleResponses/.*
+perl scoring-student-response.pl ../data/MasterFiles/FHNW_entrance_exam_master_file_2017.txt ../data/SampleResponses/.*
 ```
 # Project Details
 ## Structure 
@@ -54,16 +54,69 @@ Used to filter out StopWords from given Strings
 Used to caluclate the [Damerau–Levenshtein Distance](https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance) from two given strings
 
 ## Written Modules
-To keep the code organized and to meet the [DRY](https://de.wikipedia.org/wiki/Don%E2%80%99t_repeat_yourself) Programming Principle, code was organized within modules and than reused and tested in different places. Following the written modules with the corresponding exported functions. For more information about a specific function, please visit the commented sourcecode.
+To keep the code organized and to meet the [DRY](https://de.wikipedia.org/wiki/Don%E2%80%99t_repeat_yourself) Programming Principle, code was organized within modules and than reused and tested in different places. Following the written modules with the corresponding **exported functions**. For more information about a specific function, please visit the commented sourcecode.
+
 ### [Parser](lib/Parser.pm)
 Module for parsing exam and master file and return a hash data structure.
-* `parse_master_file`
-* `parse_exam_file`
+* `parse_master_file` Parse a master file and generates a new hash for further procedure.
+* `parse_exam_file`   Parses an exam file and generates a new hash for further procedure.
 
 ### [Printer](lib/Printer.pm)
+* `print_exam_to_file` Print a blank report from a master file to a file
+* `print_result_to_console` Print all the results of the corrected exams to the console
+* `console_printer` Print warnings to console
+* `print_statistics_to_console` Print the generated statistics to the console
+* `print_suspicious_exams` Print suspicious exams to the console
 
-
-### [Uril](lib/Util.pm)
-
+### [Util](lib/Util.pm)
+* `create_blank_exam` Create a new Exam based on a master file
+* `validate_exam` Validate the exam. Checks that all Questions and Answers are present
+* `correct_exams` Correct the students exam based on the master exam
+* `generate_statistics` Generate all the statistics from the result array
+* `suspicious_results` Reports suspicous exams by definded criterias
+* `compare_strings` Compare two strings using the Levenshtein Distance
 
 ## Testing
+You can find all the tests for this project in the `test` folder. To run all the tests at once, you can execute the perl program [run_all_tests.pl](test/run_all_tests.pl)
+```
+perl run_all_tests.pl
+```
+
+# Ideas, Solution Approaches and Retrospectives
+## Parsing the Files (Master and Exam)
+For parsing the files I choose the Regexp::Grammars module from CPAN to parse the files. I thought it is a good idea to distinguish between the master file and the exam files to treat them differently. So I've written two different grammars. In retrospect, I would definitely not do that again. At the point Mr. Conway shared his solution with us, I was way too far with my project and invested too many hours in debugging the grammar to change it and all the functions that were written for my data structure. So I stuck with the plan and used my two grammars, knowing it's not the cleanest solution.
+
+## Validate Exam Files
+Before an exam file got corrected, it will be validated. A function within the `Util` module named `validate_exam` does the job. *Extension 2- Inexact matching of questions and answers* is applied and prints warnings to the console, if a question or answer is not present or has slight differences compared with the master file.
+
+## Correct an Exam
+After the exam got validated propperly, the exam will be corrected. A function within the `Util` module named `correct_exam` does the job.The function creates for a hash with all the information for an exam. A hash entry for an exam looks like the following:
+```
+my %result = (
+        name                            => "exam_file_one",         # Name of the exam
+        result                          => 10,                      # Total correct Answers
+        answered                        => 12,                      # Total answered Questions
+        total_questions                 => 12,                      # Total Questions in Master File
+);
+```
+In the script [scoring-student-response.pl](src/scoring-student-response.pl) where this function got called, every hash will be pushed in a result array. This result array is than used to print the result to the console and generate statistics (*Extenion 3 Analyzing cohort performance and identifying below-expectation results*)
+
+## Generating Statistics
+To generate statistics from the checked exams, the function `generate_statistics` in the `Util` module was created. This function takes the result array described before. The function  generates a new hash with all the information about the statistics of the exam results. This hash looks like the following:
+```
+my %stats = (
+        average_question_answered       => int($answered_acc/$students),
+        min_questions_answered          => $min_questions, 
+        min_questions_answered_n        => $question_answered_stats{$min_questions},
+        max_questions_answered          => $max_questions,
+        max_questions_answered_n        => $question_answered_stats{$max_questions},
+        average_correct_answers         => int($answered_correct_acc / $students),
+        min_correct_answered            => $min_correct_answers,
+        min_correct_answered_n          => $correct_answers_stats{$min_correct_answers},
+        max_correct_answered            => $max_correct_answers,
+        max_correct_answered_n          => $correct_answers_stats{$max_correct_answers},
+    );
+```
+The result of the statistics will then get printed with the `print_statistics_to_console` function in the `Printer.pm` module.
+## Extension 3 - Analyzing cohort performance and identifying below-expectation results
+The following are 

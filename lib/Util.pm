@@ -18,7 +18,7 @@ use List::Util qw( min max);
 
 our @EXPORT = qw(create_blank_exam validate_exam correct_exams generate_statistics suspicious_results compare_strings);
 
-# Creates a new Exam based on a master file
+# Create a new Exam based on a master file
 # Parameters:
 #   - %parsed_exam : Hashtree from the parsed master file
 # Returns:
@@ -60,7 +60,7 @@ sub remove_cross_and_shuffle(@questions){
 }
 
 
-# Validates the exam in two steps. First checks that all the questions are present in the exam file. Afterwars check, that all the possible
+# Validates the exam. Checks that all Questions and Answers are present.
 # Answers are present as well.
 # Parameters:
 #   - master_questions          : Array ref. to the questions of the master file 
@@ -115,7 +115,7 @@ sub check_questions(%args){
         }
         if($highest != -1){
         #Check all answers from a question. Only check, if question is present.
-        check_answers(master_question => $master_questions[$master_index], student_question => $student_questions[$student_index], exam_name => $args{exam_name});
+            check_answers(master_question => $master_questions[$master_index], student_question => $student_questions[$student_index], exam_name => $args{exam_name});
         }
     }
     return $all_questions_present;          
