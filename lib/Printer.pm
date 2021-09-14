@@ -55,7 +55,7 @@ sub print_result_to_console(@results){
     print GREEN, "\n\nResults of Exam: \n", RESET;
     for my$result_ref(@results){
         my %result = %{$result_ref};
-        print_pretty(name => $result{"name"},result => $result{"result"}, total => 30);
+        print_pretty(name => $result{"name"},result => $result{"result"}, total => $result{total_questions});
     }
 }
 

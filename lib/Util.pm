@@ -16,7 +16,7 @@ use List::Util qw( min max);
 
 
 
-our @EXPORT = qw(create_blank_exam validate_exam correct_exams generate_statistics);
+our @EXPORT = qw(create_blank_exam validate_exam correct_exams generate_statistics suspicious_results);
 
 # Creates a new Exam based on a master file
 # Parameters:
@@ -167,9 +167,10 @@ sub check_answers(%args){
 #   - %result              : Returns a result tree with name and score of the corrsponding student
 sub correct_exams(%args){
     my %result = (
-        name => $args{exam_name},
-        result => 0,
-        answered => 0,
+        name                => $args{exam_name},
+        result              => 0,
+        answered            => 0,
+        total_questions     => $args{total_questions},
     );
     my @master_questions = @{$args{master_exam}->{'Exam'}{'Questions'}};
     my @student_questions = @{$args{student_exam}->{'Exam'}{'Questions'}};
@@ -180,7 +181,7 @@ sub correct_exams(%args){
         my @students_answers = $student_questions[$question]->{"Question"}{"Answers"} -> @*;
         my @given_ansers = grep {$_ =~ m{^ \s* \[ \s* [Xx] \s* \] }xms } @students_answers;
         
-        #If @given_answers is not 1 (more than one or none answer was choosen)
+        #If @given_answers is not 1 (more than one or no answer was choosen)
         next unless(scalar (@given_ansers) == 1);
         $result{answered}++;
         #remove the checkbox, leading and ending whitespaces as well as all kind of new lines
@@ -222,6 +223,7 @@ sub normalize_string($string){
 #   - 1:                Strings are exactly identical
 #   - 0:                Distance is smaller than 10%
 #   - 1:                Strings are not identical
+
 sub compare_strings(%args){
     my $master_string  = normalize_string($args{master_string});
     my $student_string = normalize_string($args{student_string});
@@ -267,6 +269,28 @@ sub generate_statistics(@results){
         max_correct_answered_n     => $correct_answers_stats{$max_correct_answers},
     );
     return %stats
+}
+
+#  Reports suspicous exams by definded criterias
+#  Arguments:
+#     - @results  :   Array of results
+
+#  Returns:
+#     - %suspicious_exams : Hash with all the suspicous Exams and the corresponding characteristic
+sub suspicious_results(@results){
+    my %suspicious_exams;
+
+    for my $result (@results){
+        if($result->{answered} < $result -> {total_questions}){
+            push (@{$suspicious_exams{$result -> {name}}}, "less than 50% of all questions anwred");
+        }
+        if($result ->{result} < $result -> {total_questions}){
+            push (@{$suspicious_exams{$result -> {name}}}, "score < 50%");
+        }
+        if($result -> {result} < $result -> {answered} / 2){
+            push (@{$suspicious_exams{$result -> {name}}},"more than 50% of answered questions are wrong");
+        }
+    }
 }
 
 1; #Magic true value required at the end of module
