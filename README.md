@@ -87,10 +87,10 @@ perl run_all_tests.pl
 For parsing the files I choose the Regexp::Grammars module from CPAN to parse the files. I thought it is a good idea to distinguish between the master file and the exam files to treat them differently. So I've written two different grammars. In retrospect, I would definitely not do that again. At the point Mr. Conway shared his solution with us, I was way too far with my project and invested too many hours in debugging the grammar to change it and all the functions that were written for my data structure. So I stuck with the plan and used my two grammars, knowing it's not the cleanest solution.
 
 ## Validate Exam Files
-Before an exam file got corrected, it will be validated. A function within the `Util` module named `validate_exam` does the job. *Extension 2- Inexact matching of questions and answers* is applied and prints warnings to the console, if a question or answer is not present or has slight differences compared with the master file.
+Before an exam file got corrected, it will be validated. A function within the [Util](lib/Util.pm) module named `validate_exam` does the job. *Extension 2- Inexact matching of questions and answers* is applied and prints warnings to the console, if a question or answer is not present or has slight differences compared with the master file.
 
 ## Correct an Exam
-After the exam got validated propperly, the exam will be corrected. A function within the `Util` module named `correct_exam` does the job.The function creates for a hash with all the information for an exam. A hash entry for an exam looks like the following:
+After the exam got validated propperly, the exam will be corrected. A function within the [Util](lib/Util.pm) module named `correct_exam` does the job.The function creates for a hash with all the information for an exam. A hash entry for an exam looks like the following:
 ```
 my %result = (
         name                            => "exam_file_one",         # Name of the exam
@@ -102,7 +102,7 @@ my %result = (
 In the script [scoring-student-response.pl](src/scoring-student-response.pl) where this function got called, every hash will be pushed in a result array. This result array is than used to print the result to the console and generate statistics (*Extenion 3 Analyzing cohort performance and identifying below-expectation results*)
 
 ## Generating Statistics
-To generate statistics from the checked exams, the function `generate_statistics` in the `Util` module was created. This function takes the result array described before. The function  generates a new hash with all the information about the statistics of the exam results. This hash looks like the following:
+To generate statistics from the checked exams, the function `generate_statistics` in the [Util](lib/Util.pm) module was created. This function takes the result array described before. The function  generates a new hash with all the information about the statistics of the exam results. This hash looks like the following:
 ```
 my %stats = (
         average_question_answered       => int($answered_acc/$students),
@@ -117,6 +117,13 @@ my %stats = (
         max_correct_answered_n          => $correct_answers_stats{$max_correct_answers},
     );
 ```
-The result of the statistics will then get printed with the `print_statistics_to_console` function in the `Printer.pm` module.
+The result of the statistics will then get printed with the `print_statistics_to_console` function in the [Printer](lib/Printer.pm) module.
 ## Extension 3 - Analyzing cohort performance and identifying below-expectation results
-The following are 
+The following criterias were choosen for suspicious exams:
+* less than 50% of all questions answered
+* score < 50%
+* more than 50% of answered questions are wrong
+The function `suspicious_results` within the [Util](lib/Util.pm) module takes the result array with the hashes of all exams and generates a new hash, that contains all the suspicious exams with the corresponding criteria that was meet. This hash looks like the following:
+```
+
+```
