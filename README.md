@@ -9,12 +9,12 @@ This Repository contains the solutions for the tasks 1a, 1b, 2, 3
 
 ## How-to-use
 ### Task 1a: Randomization of questions
-To generate a new exam from a master file, you can use the script [create-exam-file.pl](create-exam-file.pl) This script requires the path for the corresponding master file. By default, the script generates a new exam file and saves it in the folder `data/Output`
+To generate a new exam from a master file, you can use the script [create-exam-file.pl](src/create-exam-file.pl) This script requires the path for the corresponding master file. By default, the script generates a new exam file and saves it in the folder `data/Output`
 ```
 perl create-exam-file.pl  ../data/MasterFiles/FHNW_entrance_exam_master_file_2017.txt
 ```
 ### Task 1b with Extension 2 and Extension 3
-To score new exam file based on a master file, you can use the script [scoring-student-responde.pl](scoring-student-responde.pl). This scipt expects two additional arguments. ARGV0 = master file. ARGV1 = exam folder with REGEX Expression
+To score new exam file based on a master file, you can use the script [scoring-student-responde.pl](src/scoring-student-response.pl). This scipt expects two additional arguments. ARGV0 = master file. ARGV1 = exam folder with REGEX Expression
 ```
  perl scoring-student-response.pl ../data/MasterFiles/FHNW_entrance_exam_master_file_2017.txt ../data/SampleResponses/.*
 ```
