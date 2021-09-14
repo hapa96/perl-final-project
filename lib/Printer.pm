@@ -17,9 +17,11 @@ our @EXPORT = qw(print_exam_to_file print_result_to_console console_printer prin
 #   - %blank_exam       :   The new exam as a hash
 sub print_exam_to_file($master_file_name, %blank_exam ){
     print YELLOW, "Creating blank Exam based on $master_file_name ...\n", RESET;
-
+    
     #Create name for new file
     my $timestamp = strftime '%Y%m%d-%H%M%S', localtime;
+    #crop the filename without full path
+    $master_file_name =~ s{^.+/}{}xmsg;
     my $exam_file_name = "$timestamp-$master_file_name"; 
 
     #create a new output file
