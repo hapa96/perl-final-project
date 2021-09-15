@@ -9,12 +9,12 @@ This Repository contains the solutions for the tasks 1a, 1b, 2, 3
 
 # How-to-use
 ### Task 1a: Randomization of questions
-To generate a new exam from a master file, you can use the script [create-exam-file.pl](src/create-exam-file.pl) This script requires the path for the corresponding master file. By default, the script generates a new exam file and saves it in the folder `data/Output`
+To generate a new exam from a master file, you can use the script [create-exam-file.pl](src/create-exam-file.pl) This script requires the path for the corresponding master file. The script generates a new exam file and saves it in the folder `data/Output`
 ```
 perl create-exam-file.pl  ../data/MasterFiles/FHNW_entrance_exam_master_file_2017.txt
 ```
 ### Task 1b with Extension 2 and Extension 3
-To score new exam file based on a master file, you can use the script [scoring-student-response.pl](src/scoring-student-response.pl). This scipt expects two additional arguments. ARGV0 = master file. ARGV1 = exam folder with REGEX Expression
+To score a new exam file based on a master file, you can use the script [scoring-student-response.pl](src/scoring-student-response.pl). This scipt expects two additional arguments. ARGV0 = master file. ARGV1 = exam folder with REGEX Expression
 ```
 perl scoring-student-response.pl ../data/MasterFiles/FHNW_entrance_exam_master_file_2017.txt ../data/SampleResponses/.*
 ```
@@ -54,7 +54,7 @@ Used to filter out StopWords from given Strings
 Used to caluclate the [Damerau–Levenshtein Distance](https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance) from two given strings
 
 ## Written Modules
-To keep the code organized and to meet the [DRY](https://de.wikipedia.org/wiki/Don%E2%80%99t_repeat_yourself) Programming Principle, code was organized within modules and than reused and tested in different places. Following the written modules with the corresponding **exported functions**. For more information about a specific function, please visit the commented sourcecode.
+To keep the code organized and to meet the [DRY](https://de.wikipedia.org/wiki/Don%E2%80%99t_repeat_yourself) Programming Principle, code was organized within modules. Following the developed modules with the corresponding **exported functions**. For more information about a specific function, please visit the commented sourcecode.
 
 ### [Parser](lib/Parser.pm)
 Module for parsing exam and master file and return a hash data structure.
@@ -84,13 +84,13 @@ perl run_all_tests.pl
 
 # Ideas, Solution Approaches and Retrospectives
 ## Parsing the Files (Master and Exam)
-For parsing the files I choose the Regexp::Grammars module from CPAN to parse the files. I thought it is a good idea to distinguish between the master file and the exam files to treat them differently. So I've written two different grammars. In retrospect, I would definitely not do that again. At the point Mr. Conway shared his solution with us, I was way too far with my project and invested too many hours in debugging the grammar to change it and all the functions that were written for my data structure. So I stuck with the plan and used my two grammars, knowing it's not the cleanest solution.
+For parsing the files, I choose the Regexp::Grammars module from CPAN. I thought it's a good idea to distinguish between the master file and the exam files to treat them differently. So I've written two different grammars. In retrospect, I would definitely not do that again. At the point Mr. Conway shared his solution with us, the progress of the project was way too far to change the grammer and all the functions that were relying fon it. So I stuck with the plan and used my two grammars, knowing it's not the cleanest solution.
 
 ## Validate Exam Files
 Before an exam file got corrected, it will be validated. A function within the [Util](lib/Util.pm) module named `validate_exam` does the job. *Extension 2- Inexact matching of questions and answers* is applied and prints warnings to the console, if a question or answer is not present or has slight differences compared with the master file.
 
 ## Correct an Exam
-After the exam got validated propperly, the exam will be corrected. A function within the [Util](lib/Util.pm) module named `correct_exam` does the job.The function creates for a hash with all the information for an exam. A hash entry for an exam looks like the following:
+After the exam got validated propperly, the exam will be corrected. A function within the [Util](lib/Util.pm) module named `correct_exam` does the job. The function creates a hash with all the information for an exam. A hash entry for an exam looks like the following:
 ```
 my %result = (
         name                            => "exam_file_one",         # Name of the exam
@@ -99,10 +99,10 @@ my %result = (
         total_questions                 => 12,                      # Total Questions in Master File
 );
 ```
-In the script [scoring-student-response.pl](src/scoring-student-response.pl) where this function got called, every hash will be pushed in a result array. This result array is than used to print the result to the console and generate statistics (*Extenion 3 Analyzing cohort performance and identifying below-expectation results*)
+In the script [scoring-student-response.pl](src/scoring-student-response.pl) where this function got called, every hash will be pushed into a result array. This result array is than used to print the result to the console and generate statistics.
 
 ## Generating Statistics
-To generate statistics from the checked exams, the function `generate_statistics` in the [Util](lib/Util.pm) module was created. This function takes the result array described before. The function  generates a new hash with all the information about the statistics of the exam results. This hash looks like the following:
+To generate statistics from the checked exams, the function `generate_statistics` in the [Util](lib/Util.pm) module was developed. This function takes the result array described before. The function  generates a new hash with all the information about the statistics of the exam results. This hash looks like the following:
 ```
 my %stats = (
         average_question_answered       => int($answered_acc/$students),
@@ -118,11 +118,12 @@ my %stats = (
     );
 ```
 The result of the statistics will then get printed with the `print_statistics_to_console` function in the [Printer](lib/Printer.pm) module.
+
 ## Extension 3 - Analyzing cohort performance and identifying below-expectation results
 The following criterias were choosen for suspicious exams:
-* less than 50% of all questions answered
-* score < 50%
-* more than 50% of answered questions are wrong
+* Less than 50% of all questions answered
+* Ccore < 50%
+* More than 50% of answered questions are wrong
 The function `suspicious_results` within the [Util](lib/Util.pm) module takes the result array with the hashes of all exams and generates a new hash, that contains all the suspicious exams with the corresponding criteria that was meet. This hash looks like the following:
 ```
  my %%suspicious_exams = (
