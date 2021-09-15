@@ -125,5 +125,18 @@ The following criterias were choosen for suspicious exams:
 * more than 50% of answered questions are wrong
 The function `suspicious_results` within the [Util](lib/Util.pm) module takes the result array with the hashes of all exams and generates a new hash, that contains all the suspicious exams with the corresponding criteria that was meet. This hash looks like the following:
 ```
+ my %%suspicious_exams = (
 
+      "20170828-092520-FHNW_entrance_exam-ID055561" => {
+                                                         messages => ["less than 50% of all questions answered", "score < 50%"],
+                                                         result => 3,
+                                                         total_questions => 30,
+                                                       },
+      "20170828-092520-FHNW_entrance_exam-ID075446" => {
+                                                         messages => ["less than 50% of all questions answered", "score < 50%"],
+                                                         result => 14,
+                                                         total_questions => 30,
+                                                       },
+        );
 ```
+The messages are then printed to the console with the function `print_suspicious_exams` in the [Printer](lib/Printer.pm) module.
