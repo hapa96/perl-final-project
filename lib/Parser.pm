@@ -14,7 +14,7 @@ our @EXPORT = ('parse_master_file', 'parse_exam_file');
 #
 #  Returns:
 #       - %parsed_exam :    Hash datastructure of the parsed file
-sub parse_master_file($parse_exam_file){
+sub parse_master_file($path_to_file){
     my $parser = qr{
         #<debug:on>
 
@@ -42,12 +42,12 @@ sub parse_master_file($parse_exam_file){
 
         <token: Intro_Text>         ^ .+? (Scoring:) .+? (Warning:) [^_]*
 
-        <token: Empty_Line>        \s* \n
+        <token: Empty_Line>        \s* \R
 
         
     }xms;
 
-    parse_content($parser, $path_to_file )
+    parse_content($parser, $path_to_file );
 
 }
 # Parses an exam file and generates a new hash for further procedure.
@@ -86,7 +86,7 @@ sub parse_exam_file($path_to_file){
         
     }xms;
 
-    parse_content($parser, $path_to_file )
+    parse_content($parser, $path_to_file );
 
 }
 #Helper Function for Parsing a file
@@ -116,7 +116,5 @@ sub parse_content($parser, $path_to_file ){
         my %parsed_exam = %/;
     }
 }
-
-
 
 1; #Magic true value required at the end of module
